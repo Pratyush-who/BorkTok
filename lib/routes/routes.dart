@@ -34,15 +34,16 @@ class Routes {
           settings: RouteSettings(name: settings.name, arguments: settings.arguments),
         );
       case reels:
-        return MaterialPageRoute(builder: (_) => const ReelsScreen());
+        return MaterialPageRoute(builder: (context) => const ReelsScreen());
       case tinder:
-        return MaterialPageRoute(builder: (_) => const TinderScreen());
+      return MaterialPageRoute(builder: (context) => const TinderScreen());
+
       case guide:
-        return MaterialPageRoute(builder: (_) => const GuideScreen());
+        return MaterialPageRoute(builder: (context) => const GuideScreen());
       case essentials:
-        return MaterialPageRoute(builder: (_) => const EssentialsScreen());
+        return MaterialPageRoute(builder: (context) => const EssentialsScreen());
       case store:
-        return MaterialPageRoute(builder: (_) => const StoreScreen());
+        return MaterialPageRoute(builder: (context) => const StoreScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => const HomeScreen(), // Default to HomeScreen instead of error page

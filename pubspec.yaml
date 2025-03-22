@@ -21,6 +21,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   video_player: ^2.9.3
   provider: ^6.1.2
+  fl_chart: ^0.70.2
 
 dev_dependencies:
   flutter_test:

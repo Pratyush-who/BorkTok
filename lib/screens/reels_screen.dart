@@ -15,7 +15,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
   final List<Map<String, dynamic>> _reels = [
     {
       'username': 'fluffybuddy',
-      'videoUrl': 'https://videos.pexels.com/video-files/4157418/4157418-hd_720_1280_30fps.mp4', 
+      'videoUrl': 'https://cdn.pixabay.com/video/2023/03/31/156962-813912944_large.mp4', 
       'caption': 'Walk with the bunchhh...!!! 🐾🏖️',
       'likes': 2453,
       'comments': 148,

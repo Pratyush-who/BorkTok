@@ -107,11 +107,12 @@ class DogProfilesProvider extends ChangeNotifier {
 
   List<DogProfile> _dogProfiles = [];
 
+  List<DogProfile> get dogProfiles => _dogProfiles;
+
   DogProfilesProvider() {
     _resetProfiles();
+    print("Initialized with ${_dogProfiles.length} profiles"); // Debug print
   }
-
-  List<DogProfile> get dogProfiles => _dogProfiles;
 
   void _resetProfiles() {
     _dogProfiles = List.from(_allDogProfiles);
@@ -143,24 +144,34 @@ class TinderScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFFAF8F6),
         appBar: AppBar(
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.pets, color: Color(0xFF5C8D89)),
+              Image.asset('assets/logo.png', width: 40),
               const SizedBox(width: 8),
               Text(
-                'BarkMate',
-                style: TextStyle(
+                'BorkTok',
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
                   color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
+          actions: [],
           centerTitle: true,
           backgroundColor: Colors.white,
           elevation: 1,
         ),
-        body: const SafeArea(child: DogTinderCards()),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: DogTinderCards(),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -178,6 +189,13 @@ class _DogTinderCardsState extends State<DogTinderCards>
   late AnimationController _animationController;
   Alignment _dragAlignment = Alignment.center;
   double _dragDistance = 0;
+
+  // New animation properties
+  bool _isExiting = false;
+  Alignment _exitAlignment = Alignment.center;
+  double _exitRotation = 0.0;
+  double _exitOpacity = 1.0;
+  double _exitScale = 1.0;
 
   @override
   void initState() {
@@ -222,20 +240,79 @@ class _DogTinderCardsState extends State<DogTinderCards>
   ) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Determine if the card was swiped far enough to count as a like/dislike
     if (_dragDistance.abs() > screenWidth * 0.2) {
-      provider.removeTopProfile();
-      _dragAlignment = Alignment.center;
-      _dragDistance = 0;
+      // Direction of swipe
+      final isRight = _dragDistance > 0;
+
+      // Start the exit animation
+      _playExitAnimation(isRight, provider);
     } else {
       _runResetAnimation();
     }
+  }
+
+  void _playExitAnimation(bool isRight, DogProfilesProvider provider) {
+    setState(() {
+      _isExiting = true;
+      _exitAlignment = _dragAlignment;
+      _exitRotation = _dragAlignment.x * (math.pi / 8);
+    });
+
+    // Calculate final exit position (off-screen)
+    final targetX = isRight ? 3.0 : -3.0;
+    final targetY = -0.5; // Slightly upward trajectory
+
+    // Animate in stages for a more natural motion
+    Future.delayed(const Duration(milliseconds: 10), () {
+      if (mounted) {
+        setState(() {
+          _exitAlignment = Alignment(targetX, targetY);
+          _exitRotation =
+              (isRight ? 1 : -1) * (math.pi / 4); // More rotation during exit
+          _exitScale = 0.8; // Slightly shrink
+          _exitOpacity = 0.0; // Fade out
+        });
+      }
+    });
+
+    // Remove the card after animation completes
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        provider.removeTopProfile();
+        setState(() {
+          _isExiting = false;
+          _dragAlignment = Alignment.center;
+          _dragDistance = 0;
+          _exitOpacity = 1.0;
+          _exitRotation = 0.0;
+          _exitScale = 1.0;
+        });
+      }
+    });
+  }
+
+  void _animateCardSwipe(bool isRight, DogProfilesProvider provider) {
+    if (provider.isEmpty) return;
+
+    // Set initial position based on direction
+    setState(() {
+      _dragAlignment = Alignment(isRight ? 0.5 : -0.5, 0);
+      _dragDistance =
+          isRight
+              ? MediaQuery.of(context).size.width * 0.25
+              : -MediaQuery.of(context).size.width * 0.25;
+    });
+
+    // Trigger exit animation
+    _playExitAnimation(isRight, provider);
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<DogProfilesProvider>(
       builder: (context, provider, child) {
+        print("Building cards with ${provider.dogProfiles.length} profiles");
+
         if (provider.isEmpty) {
           return Center(
             child: Column(
@@ -265,150 +342,178 @@ class _DogTinderCardsState extends State<DogTinderCards>
           );
         }
 
-        return Stack(
+        return Column(
           children: [
-            // Background cards (showing next cards in stack)
-            ...provider.dogProfiles.asMap().entries.map((entry) {
-              final index = entry.key;
-              final profile = entry.value;
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Background cards (showing next cards in stack)
+                  ...provider.dogProfiles.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final profile = entry.value;
 
-              // Only show top 3 cards in stack for efficiency
-              if (index >= 3) return const SizedBox.shrink();
+                    if (index >= 3) return const SizedBox.shrink();
 
-              // Scale and offset the background cards for stack effect
-              return Positioned(
-                top: 20.0 + (index * 5),
-                left: 20.0 + (index * 5),
-                right: 20.0 + (index * 5),
-                child: Opacity(
-                  opacity: index == 0 ? 1.0 : 1.0 - (index * 0.2),
-                  child: Transform.scale(
-                    scale: 1.0 - (index * 0.05),
-                    child: DogCard(profile: profile),
-                  ),
-                ),
-              );
-            }).toList(),
+                    // Skip the top card as it will be handled separately
+                    if (index == 0) return const SizedBox.shrink();
 
-            // Top card (interactive)
-            if (provider.dogProfiles.isNotEmpty)
-              Positioned(
-                top: 20,
-                left: 20,
-                right: 20,
-                child: GestureDetector(
-                  onPanUpdate: (details) {
-                    setState(() {
-                      _dragAlignment = Alignment(
-                        _dragAlignment.x +
-                            details.delta.dx /
-                                (MediaQuery.of(context).size.width / 2),
-                        _dragAlignment.y,
-                      );
-                      _dragDistance =
-                          _dragAlignment.x *
-                          (MediaQuery.of(context).size.width / 2);
-                    });
-                  },
-                  onPanEnd:
-                      (details) => _handleSwipe(context, details, provider),
-                  child: Align(
-                    alignment: _dragAlignment,
-                    child: Transform.rotate(
-                      angle: _dragAlignment.x * (math.pi / 8),
-                      child: Stack(
-                        children: [
-                          DogCard(profile: provider.dogProfiles[0]),
-                          // Like indicator
-                          if (_dragAlignment.x > 0.15)
-                            Positioned(
-                              top: 20,
-                              left: 20,
-                              child: Transform.rotate(
-                                angle: -0.2,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.green,
-                                      width: 4,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Text(
-                                    'LIKE',
-                                    style: TextStyle(
-                                      color: Colors.green,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                    return Positioned(
+                      child: Transform.scale(
+                        scale: 1.0 - (index * 0.05),
+                        child: Transform.translate(
+                          offset: Offset(0, index * 10),
+                          child: Opacity(
+                            opacity: 1.0 - (index * 0.2),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.9,
+                              child: DogCard(profile: profile),
                             ),
-                          // Dislike indicator
-                          if (_dragAlignment.x < -0.15)
-                            Positioned(
-                              top: 20,
-                              right: 20,
-                              child: Transform.rotate(
-                                angle: 0.2,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.red,
-                                      width: 4,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+
+                  // Top card (interactive)
+                  if (provider.dogProfiles.isNotEmpty)
+                    GestureDetector(
+                      onPanUpdate: (details) {
+                        if (_isExiting)
+                          return; // Prevent dragging during animation
+
+                        setState(() {
+                          _dragAlignment = Alignment(
+                            _dragAlignment.x +
+                                details.delta.dx /
+                                    (MediaQuery.of(context).size.width / 2),
+                            _dragAlignment.y,
+                          );
+                          _dragDistance =
+                              _dragAlignment.x *
+                              (MediaQuery.of(context).size.width / 2);
+                        });
+                      },
+                      onPanEnd: (details) {
+                        if (_isExiting)
+                          return; // Prevent handling swipe during animation
+                        _handleSwipe(context, details, provider);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutQuint,
+                        transform:
+                            Matrix4.identity()
+                              ..translate(
+                                _isExiting
+                                    ? _exitAlignment.x *
+                                        (MediaQuery.of(context).size.width / 2)
+                                    : _dragAlignment.x *
+                                        (MediaQuery.of(context).size.width / 2),
+                                _isExiting
+                                    ? _exitAlignment.y *
+                                        (MediaQuery.of(context).size.height / 2)
+                                    : 0.0,
+                              )
+                              ..rotateZ(
+                                _isExiting
+                                    ? _exitRotation
+                                    : _dragAlignment.x * (math.pi / 8),
+                              )
+                              ..scale(_isExiting ? _exitScale : 1.0),
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 300),
+                          opacity: _isExiting ? _exitOpacity : 1.0,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.9,
+                            child: Stack(
+                              children: [
+                                DogCard(profile: provider.dogProfiles[0]),
+                                // Like indicator
+                                if (_dragAlignment.x > 0.15)
+                                  Positioned(
+                                    top: 20,
+                                    left: 20,
+                                    child: Transform.rotate(
+                                      angle: -0.2,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.green,
+                                            width: 4,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'LIKE',
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Text(
-                                    'NOPE',
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
+                                // Dislike indicator
+                                if (_dragAlignment.x < -0.15)
+                                  Positioned(
+                                    top: 20,
+                                    right: 20,
+                                    child: Transform.rotate(
+                                      angle: 0.2,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.red,
+                                            width: 4,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'NOPE',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
+                              ],
                             ),
-                        ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                ],
               ),
+            ),
 
             // Action buttons
-            Positioned(
-              bottom: 40,
-              left: 0,
-              right: 0,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Dislike button
                   GestureDetector(
                     onTap: () {
-                      if (!provider.isEmpty) {
-                        setState(() {
-                          _dragAlignment = const Alignment(-2, 0);
-                          _dragDistance = -MediaQuery.of(context).size.width;
-                        });
-                        Future.delayed(const Duration(milliseconds: 200), () {
-                          provider.removeTopProfile();
-                          setState(() {
-                            _dragAlignment = Alignment.center;
-                            _dragDistance = 0;
-                          });
-                        });
+                      if (!provider.isEmpty && !_isExiting) {
+                        _animateCardSwipe(false, provider);
                       }
                     },
                     child: Container(
@@ -426,7 +531,7 @@ class _DogTinderCardsState extends State<DogTinderCards>
                           ),
                         ],
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Icon(Icons.close, color: Colors.red, size: 32),
                       ),
                     ),
@@ -437,18 +542,8 @@ class _DogTinderCardsState extends State<DogTinderCards>
                   // Like button
                   GestureDetector(
                     onTap: () {
-                      if (!provider.isEmpty) {
-                        setState(() {
-                          _dragAlignment = const Alignment(2, 0);
-                          _dragDistance = MediaQuery.of(context).size.width;
-                        });
-                        Future.delayed(const Duration(milliseconds: 200), () {
-                          provider.removeTopProfile();
-                          setState(() {
-                            _dragAlignment = Alignment.center;
-                            _dragDistance = 0;
-                          });
-                        });
+                      if (!provider.isEmpty && !_isExiting) {
+                        _animateCardSwipe(true, provider);
                       }
                     },
                     child: Container(
@@ -466,7 +561,7 @@ class _DogTinderCardsState extends State<DogTinderCards>
                           ),
                         ],
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Icon(
                           Icons.favorite,
                           color: Colors.green,
@@ -493,9 +588,10 @@ class DogCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
+      height: MediaQuery.of(context).size.height * 0.6,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
+        color: Colors.grey[200],
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.3),
@@ -509,20 +605,19 @@ class DogCard extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Using a placeholder image since actual assets might not exist
+          // Force a simple colored background instead of trying to load images
           Container(
-            color: Colors.grey[300],
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.blue[100]!, Colors.blue[200]!],
+              ),
+            ),
             child: Center(
-              child: Icon(Icons.pets, size: 80, color: Colors.grey[400]),
+              child: Icon(Icons.pets, size: 100, color: Colors.grey[100]),
             ),
           ),
-          // If using actual images, uncomment this
-          /*
-          Image.asset(
-            profile.imageUrl,
-            fit: BoxFit.cover,
-          ),
-          */
 
           // Gradient overlay for better text readability
           Container(

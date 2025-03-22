@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+import '../screens/splash_screen.dart';
+import '../screens/main_screen.dart';
+import '../screens/home_screen.dart';
+import '../screens/reels_screen.dart';
+import '../screens/tinder_screen.dart';
+import '../screens/guide_screen.dart';
+import '../screens/essentials_screen.dart';
+import '../screens/store_screen.dart';
+
+class Routes {
+  static const String splash = '/splash';
+  static const String main = '/main';
+  static const String home = '/home';
+  static const String reels = '/reels';
+  static const String tinder = '/tinder';
+  static const String guide = '/guide';
+  static const String essentials = '/essentials';
+  static const String store = '/store';
+
+  static Route<dynamic> generateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case splash:
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
+      case main:
+        // Use this to prevent back button from appearing
+        return PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const MainScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          settings: RouteSettings(name: settings.name, arguments: settings.arguments),
+        );
+      case home:
+        return MaterialPageRoute(builder: (_) => const HomeScreen());
+      case reels:
+        return MaterialPageRoute(builder: (_) => const ReelsScreen());
+      case tinder:
+        return MaterialPageRoute(builder: (_) => const TinderScreen());
+      case guide:
+        return MaterialPageRoute(builder: (_) => const GuideScreen());
+      case essentials:
+        return MaterialPageRoute(builder: (_) => const EssentialsScreen());
+      case store:
+        return MaterialPageRoute(builder: (_) => const StoreScreen());
+      default:
+        return MaterialPageRoute(
+          builder: (_) => Scaffold(
+            body: Center(
+              child: Text('No route defined for ${settings.name}'),
+            ),
+          ),
+        );
+    }
+  }
+}

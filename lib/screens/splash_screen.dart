@@ -30,8 +30,13 @@ class _SplashScreenState extends State
     _animationController.forward();
 
     Timer(const Duration(seconds: 3), () {
-      // Replace the current route with MainScreen
-      Navigator.pushReplacementNamed(context, Routes.main);
+      // Replace the current route with HomeScreen instead of MainScreen
+      // and clear the navigation stack to prevent going back
+      Navigator.pushNamedAndRemoveUntil(
+        context, 
+        Routes.main, 
+        (route) => false  // This removes all previous routes
+      );
     });
   }
 

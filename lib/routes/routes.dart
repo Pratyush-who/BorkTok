@@ -23,16 +23,16 @@ class Routes {
       case splash:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
       case main:
-        // Use this to prevent back button from appearing
+        return MaterialPageRoute(builder: (_) => const MainScreen());
+      case home:
+        // When navigating to home, prevent going back to previous screens
         return PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const MainScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
           settings: RouteSettings(name: settings.name, arguments: settings.arguments),
         );
-      case home:
-        return MaterialPageRoute(builder: (_) => const HomeScreen());
       case reels:
         return MaterialPageRoute(builder: (_) => const ReelsScreen());
       case tinder:
@@ -45,11 +45,7 @@ class Routes {
         return MaterialPageRoute(builder: (_) => const StoreScreen());
       default:
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Center(
-              child: Text('No route defined for ${settings.name}'),
-            ),
-          ),
+          builder: (_) => const HomeScreen(), // Default to HomeScreen instead of error page
         );
     }
   }

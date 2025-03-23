@@ -37,7 +37,8 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {},
                 ),
                 IconButton(
-                  icon: const Icon(Icons.message_outlined),
+                  
+                  icon: Image.asset('assets/evett.png', width: 40),
                   color: Colors.grey.shade700,
                   onPressed: () {
                     Navigator.pushNamed(context, '/report');

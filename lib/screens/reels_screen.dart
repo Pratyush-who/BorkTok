@@ -11,12 +11,13 @@ class ReelsScreen extends StatefulWidget {
 class _ReelsScreenState extends State<ReelsScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  
+
   final List<Map<String, dynamic>> _reels = [
     {
       'username': 'fluffybuddy',
-      'videoUrl': 'https://cdn.pixabay.com/video/2023/03/31/156962-813912944_large.mp4', 
-      'caption': 'Walk with the bunchhh...!!! 🐾🏖️',
+      'videoUrl':
+          'https://www.shutterstock.com/shutterstock/videos/3684664651/preview/stock-footage-shiba-inu-dog-relaxing-on-the-floor.webm',
+      'caption': 'Someones very happy...!!! 🐾🏖️',
       'likes': 2453,
       'comments': 148,
       'isLiked': false,
@@ -24,7 +25,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
     },
     {
       'username': 'barklover',
-      'videoUrl': 'https://www.shutterstock.com/shutterstock/videos/3459375705/preview/stock-footage-the-owner-puts-a-bowl-of-food-on-the-table-and-the-dog-jack-rassell-terrier-starts-to-eat-vertical.webm',
+      'videoUrl':
+          'https://www.shutterstock.com/shutterstock/videos/3459375705/preview/stock-footage-the-owner-puts-a-bowl-of-food-on-the-table-and-the-dog-jack-rassell-terrier-starts-to-eat-vertical.webm',
       'caption': 'Lunch tymmm...!!! 🍖🍗',
       'likes': 1879,
       'comments': 93,
@@ -33,16 +35,18 @@ class _ReelsScreenState extends State<ReelsScreen> {
     },
     {
       'username': 'puppyplaytime',
-      'videoUrl': 'https://videos.pexels.com/video-files/2834230/2834230-sd_360_640_15fps.mp4',
+      'videoUrl':
+          'https://videos.pexels.com/video-files/2834230/2834230-sd_360_640_15fps.mp4',
       'caption': 'Bro sensed somethingggg....!!!! 🏃‍♂️💨',
-      'likes': 3244,
+      'likes': 324,
       'comments': 201,
       'isLiked': false,
       'isFollowing': false,
     },
     {
       'username': 'woofpack',
-      'videoUrl': 'https://www.shutterstock.com/shutterstock/videos/3486379921/preview/stock-footage-active-funny-crazy-face-dog-running-playing-in-autumn-beautiful-city-perk-happy-smiling-fetching.webm',
+      'videoUrl':
+          'https://www.shutterstock.com/shutterstock/videos/3486379921/preview/stock-footage-active-funny-crazy-face-dog-running-playing-in-autumn-beautiful-city-perk-happy-smiling-fetching.webm',
       'caption': 'Who wanna playyyy..!!!! 🐕‍🦺🐕🐩',
       'likes': 5670,
       'comments': 312,
@@ -51,7 +55,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
     },
     {
       'username': 'goodboy',
-      'videoUrl': 'https://videos.pexels.com/video-files/9252757/9252757-sd_360_640_30fps.mp4',
+      'videoUrl':
+          'https://videos.pexels.com/video-files/9252757/9252757-sd_360_640_30fps.mp4',
       'caption': 'Let me play tooo... Why only them..!!',
       'likes': 1256,
       'comments': 76,
@@ -60,7 +65,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
     },
     {
       'username': 'pawsome',
-      'videoUrl': 'https://indianmemetemplates.com/wp-content/uploads/juice-pila-do.mp4',
+      'videoUrl':
+          'https://indianmemetemplates.com/wp-content/uploads/juice-pila-do.mp4',
       'caption': 'OG mitthu don...',
       'likes': 2198,
       'comments': 127,
@@ -69,7 +75,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
     },
     {
       'username': 'tailwagger',
-      'videoUrl': 'https://www.shutterstock.com/shutterstock/videos/3559732737/preview/stock-footage-adorable-funny-pomeranian-dog-wears-sunglasses-looks-to-the-left-to-the-right-looks-up-then-looks.webm',
+      'videoUrl':
+          'https://www.shutterstock.com/shutterstock/videos/3559732737/preview/stock-footage-adorable-funny-pomeranian-dog-wears-sunglasses-looks-to-the-left-to-the-right-looks-up-then-looks.webm',
       'caption': 'Someones lovin it..!! 🏞️',
       'likes': 3429,
       'comments': 215,
@@ -84,13 +91,18 @@ class _ReelsScreenState extends State<ReelsScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize the first two videos    _initializeControllers(0);
+    // Initialize the first two videos
+    _initializeControllers(0);
     _initializeControllers(1);
   }
 
   void _initializeControllers(int index) {
-    if (index >= 0 && index < _reels.length && !_videoControllers.containsKey(index)) {
-      final controller = VideoPlayerController.network(_reels[index]['videoUrl']);
+    if (index >= 0 &&
+        index < _reels.length &&
+        !_videoControllers.containsKey(index)) {
+      final controller = VideoPlayerController.network(
+        _reels[index]['videoUrl'],
+      );
       _videoControllers[index] = controller;
       controller.initialize().then((_) {
         if (index == _currentPage) {
@@ -116,16 +128,16 @@ class _ReelsScreenState extends State<ReelsScreen> {
     if (_videoControllers.containsKey(_currentPage)) {
       _videoControllers[_currentPage]!.pause();
     }
-    
+
     // Play the new current video
     if (_videoControllers.containsKey(page)) {
       _videoControllers[page]!.play();
       _videoControllers[page]!.setLooping(true);
     }
-    
+
     // Initialize next video if needed
     _initializeControllers(page + 1);
-    
+
     setState(() {
       _currentPage = page;
     });
@@ -161,26 +173,27 @@ class _ReelsScreenState extends State<ReelsScreen> {
             itemCount: _reels.length,
             itemBuilder: (context, index) {
               final reel = _reels[index];
-              
+
               return Stack(
                 fit: StackFit.expand,
                 children: [
                   // Video player
-                  _videoControllers.containsKey(index) && _videoControllers[index]!.value.isInitialized
+                  _videoControllers.containsKey(index) &&
+                          _videoControllers[index]!.value.isInitialized
                       ? GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              if (_videoControllers[index]!.value.isPlaying) {
-                                _videoControllers[index]!.pause();
-                              } else {
-                                _videoControllers[index]!.play();
-                              }
-                            });
-                          },
-                          child: VideoPlayer(_videoControllers[index]!),
-                        )
+                        onTap: () {
+                          setState(() {
+                            if (_videoControllers[index]!.value.isPlaying) {
+                              _videoControllers[index]!.pause();
+                            } else {
+                              _videoControllers[index]!.play();
+                            }
+                          });
+                        },
+                        child: VideoPlayer(_videoControllers[index]!),
+                      )
                       : const Center(child: CircularProgressIndicator()),
-                  
+
                   // UI Overlay
                   Positioned(
                     bottom: 0,
@@ -207,7 +220,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               CircleAvatar(
                                 radius: 16,
                                 backgroundColor: Colors.grey[300],
-                                child: const Icon(Icons.person, color: Colors.white),
+                                child: const Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                ),
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -221,15 +237,26 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               GestureDetector(
                                 onTap: () => _toggleFollow(index),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Colors.white),
                                     borderRadius: BorderRadius.circular(4),
-                                    color: reel['isFollowing'] ? Colors.blue : Colors.transparent,
+                                    color:
+                                        reel['isFollowing']
+                                            ? Colors.blue
+                                            : Colors.transparent,
                                   ),
                                   child: Text(
-                                    reel['isFollowing'] ? 'Following' : 'Follow',
-                                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                                    reel['isFollowing']
+                                        ? 'Following'
+                                        : 'Follow',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -247,18 +274,21 @@ class _ReelsScreenState extends State<ReelsScreen> {
                       ),
                     ),
                   ),
-                  
+
+                  // Side action buttons
                   // Side action buttons
                   Positioned(
-                    right: 16,
-                    bottom: 100,
+                    right: 13,
+                    bottom: 20,
                     child: Column(
                       children: [
                         // Like button
                         IconButton(
                           onPressed: () => _toggleLike(index),
                           icon: Icon(
-                            reel['isLiked'] ? Icons.favorite : Icons.favorite_border,
+                            reel['isLiked']
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                             color: reel['isLiked'] ? Colors.red : Colors.white,
                             size: 28,
                           ),
@@ -273,7 +303,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           onPressed: () {
                             // Show comment sheet
                           },
-                          icon: const Icon(Icons.comment, color: Colors.white, size: 28),
+                          icon: const Icon(
+                            Icons.comment,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                         ),
                         Text(
                           _formatCount(reel['comments']),
@@ -285,7 +319,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           onPressed: () {
                             // Show share options
                           },
-                          icon: const Icon(Icons.send, color: Colors.white, size: 28),
+                          icon: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         // Bookmark button
@@ -293,7 +331,48 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           onPressed: () {
                             // Save video
                           },
-                          icon: const Icon(Icons.bookmark_border, color: Colors.white, size: 28),
+                          icon: const Icon(
+                            Icons.bookmark_border,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(height: 36),
+                        // Add a music icon or more options at the bottom
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.music_note,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: IconButton(
+                                  onPressed: () {
+                                    // Show more options
+                                  },
+                                  icon: const Icon(
+                                    Icons.more_horiz,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -302,7 +381,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
               );
             },
           ),
-          
+
           // Top navigation bar
           SafeArea(
             child: Padding(

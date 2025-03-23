@@ -190,12 +190,15 @@ class _DogTinderCardsState extends State<DogTinderCards>
   Alignment _dragAlignment = Alignment.center;
   double _dragDistance = 0;
 
-  // New animation properties
+  // Improved animation properties
   bool _isExiting = false;
   Alignment _exitAlignment = Alignment.center;
   double _exitRotation = 0.0;
   double _exitOpacity = 1.0;
   double _exitScale = 1.0;
+
+  // Swipe threshold
+  final double _swipeThreshold = 0.15;
 
   @override
   void initState() {
@@ -215,23 +218,24 @@ class _DogTinderCardsState extends State<DogTinderCards>
     super.dispose();
   }
 
-  void _runResetAnimation() {
-    _animationController.reset();
-    final animation = Tween(
-      begin: _dragAlignment,
-      end: Alignment.center,
-    ).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
-    );
+  // No longer needed as we won't reset to center
+  // void _runResetAnimation() {
+  //   _animationController.reset();
+  //   final animation = Tween(
+  //     begin: _dragAlignment,
+  //     end: Alignment.center,
+  //   ).animate(
+  //     CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+  //   );
 
-    animation.addListener(() {
-      setState(() {
-        _dragAlignment = animation.value;
-      });
-    });
+  //   animation.addListener(() {
+  //     setState(() {
+  //       _dragAlignment = animation.value;
+  //     });
+  //   });
 
-    _animationController.forward();
-  }
+  //   _animationController.forward();
+  // }
 
   void _handleSwipe(
     BuildContext context,
@@ -239,15 +243,30 @@ class _DogTinderCardsState extends State<DogTinderCards>
     DogProfilesProvider provider,
   ) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final velocity = details.velocity.pixelsPerSecond.dx;
+    final isSwipeIntent =
+        velocity.abs() > 500 ||
+        _dragDistance.abs() > screenWidth * _swipeThreshold;
 
-    if (_dragDistance.abs() > screenWidth * 0.2) {
-      // Direction of swipe
-      final isRight = _dragDistance > 0;
+    if (isSwipeIntent) {
+      // Direction of swipe (true = right, false = left)
+      final isRight =
+          _dragDistance > 0 || (velocity > 0 && _dragDistance.abs() < 10);
 
-      // Start the exit animation
+      // Play the exit animation
       _playExitAnimation(isRight, provider);
     } else {
-      _runResetAnimation();
+      // If the swipe wasn't decisive enough, complete it based on direction
+      if (_dragDistance.abs() > 0) {
+        final isRight = _dragDistance > 0;
+        _playExitAnimation(isRight, provider);
+      } else {
+        // Reset to center for very small movements
+        setState(() {
+          _dragAlignment = Alignment.center;
+          _dragDistance = 0;
+        });
+      }
     }
   }
 
@@ -258,18 +277,19 @@ class _DogTinderCardsState extends State<DogTinderCards>
       _exitRotation = _dragAlignment.x * (math.pi / 8);
     });
 
-    // Calculate final exit position (off-screen)
-    final targetX = isRight ? 3.0 : -3.0;
-    final targetY = -0.5; // Slightly upward trajectory
+    // Calculate final exit position (further off-screen)
+    final targetX =
+        isRight ? 5.0 : -5.0; // Increased to ensure it goes fully off-screen
+    final targetY = isRight ? -0.2 : -0.2; // Slightly upward trajectory
 
-    // Animate in stages for a more natural motion
+    // Animate for a smoother exit
     Future.delayed(const Duration(milliseconds: 10), () {
       if (mounted) {
         setState(() {
           _exitAlignment = Alignment(targetX, targetY);
           _exitRotation =
-              (isRight ? 1 : -1) * (math.pi / 4); // More rotation during exit
-          _exitScale = 0.8; // Slightly shrink
+              (isRight ? 1 : -1) * (math.pi / 6); // More rotation during exit
+          _exitScale = 0.9; // Slightly shrink
           _exitOpacity = 0.0; // Fade out
         });
       }
@@ -302,8 +322,6 @@ class _DogTinderCardsState extends State<DogTinderCards>
               ? MediaQuery.of(context).size.width * 0.25
               : -MediaQuery.of(context).size.width * 0.25;
     });
-
-    // Trigger exit animation
     _playExitAnimation(isRight, provider);
   }
 
@@ -348,14 +366,12 @@ class _DogTinderCardsState extends State<DogTinderCards>
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Background cards (showing next cards in stack)
                   ...provider.dogProfiles.asMap().entries.map((entry) {
                     final index = entry.key;
                     final profile = entry.value;
 
-                    if (index >= 3) return const SizedBox.shrink();
+                    if (index >= 2) return const SizedBox.shrink();
 
-                    // Skip the top card as it will be handled separately
                     if (index == 0) return const SizedBox.shrink();
 
                     return Positioned(
@@ -430,7 +446,7 @@ class _DogTinderCardsState extends State<DogTinderCards>
                               children: [
                                 DogCard(profile: provider.dogProfiles[0]),
                                 // Like indicator
-                                if (_dragAlignment.x > 0.15)
+                                if (_dragAlignment.x > _swipeThreshold)
                                   Positioned(
                                     top: 20,
                                     left: 20,
@@ -462,7 +478,7 @@ class _DogTinderCardsState extends State<DogTinderCards>
                                     ),
                                   ),
                                 // Dislike indicator
-                                if (_dragAlignment.x < -0.15)
+                                if (_dragAlignment.x < -_swipeThreshold)
                                   Positioned(
                                     top: 20,
                                     right: 20,
@@ -605,18 +621,35 @@ class DogCard extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Force a simple colored background instead of trying to load images
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Colors.blue[100]!, Colors.blue[200]!],
-              ),
-            ),
-            child: Center(
-              child: Icon(Icons.pets, size: 100, color: Colors.grey[100]),
-            ),
+          // Use the actual image from imageUrl instead of a colored background
+          Image.asset(
+            profile.imageUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              // Fallback if image fails to load
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.blue[100]!, Colors.blue[200]!],
+                  ),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.pets, size: 80, color: Colors.grey[100]),
+                      const SizedBox(height: 10),
+                      Text(
+                        "Image not found",
+                        style: TextStyle(color: Colors.grey[800]),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
 
           // Gradient overlay for better text readability

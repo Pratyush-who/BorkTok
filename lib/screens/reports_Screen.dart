@@ -225,7 +225,7 @@ Future<bool> testApiConnection() async {
           'Personal Health Assistant- E-VET',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color(0xFF2E7D32),
+        backgroundColor: Theme.of(context).primaryColor,
       ),
       body: Column(
         children: [
@@ -311,7 +311,7 @@ Future<bool> testApiConnection() async {
                         ElevatedButton(
                           onPressed: _handleSubmitForm,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF388E3C),
+                            backgroundColor: Theme.of(context).primaryColor,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 15),
                           ),

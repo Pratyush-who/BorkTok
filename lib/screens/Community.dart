@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class EssentialsScreen extends StatelessWidget {
-  const EssentialsScreen({super.key});
+class Community extends StatelessWidget {
+  const Community({super.key});
 
   @override
   Widget build(BuildContext context) {

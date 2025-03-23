@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'reels_screen.dart';
 import 'tinder_screen.dart';
-import 'guide_screen.dart';
-import 'essentials_screen.dart';
+import 'BuySell.dart';
+import 'Community.dart';
 import 'store_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -20,8 +20,8 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     ReelsScreen(),
     TinderScreen(),
-    GuideScreen(),
-    EssentialsScreen(),
+    BuySell(),
+    Community(),
     StoreScreen(),
   ];
 
@@ -66,12 +66,12 @@ class _MainScreenState extends State<MainScreen> {
                 label: 'Buddies',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.menu_book_rounded),
-                label: 'Guide',
+                icon: Icon(Icons.handshake),
+                label: 'Buy&Sell',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.health_and_safety_rounded),
-                label: 'Essentials',
+                label: 'Community',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.shopping_bag_rounded),

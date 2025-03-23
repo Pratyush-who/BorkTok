@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +39,9 @@ class HomeScreen extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.message_outlined),
                   color: Colors.grey.shade700,
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/report');
+                  },
                 ),
               ],
             ),

@@ -1,26 +1,31 @@
+import 'package:borktok/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'routes/routes.dart';
 
 void main() async {
   try {
     // Ensure flutter bindings are initialized
     WidgetsFlutterBinding.ensureInitialized();
-    
-    // Load environment variables with error logging
+
+    // Initialize Firebase with generated configuration
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
     await dotenv.load(fileName: ".env");
-    
-    // Print out loaded environment variables for debugging
+
     print('Loaded environment variables:');
     dotenv.env.forEach((key, value) {
       print('$key: $value');
     });
   } catch (e) {
-    print("Critical Error loading .env file: $e");
+    print("Critical Error initializing app: $e");
   }
-  
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -52,7 +57,7 @@ class MyApp extends StatelessWidget {
           bodyMedium: TextStyle(fontSize: 14, color: Color(0xFF2A2A2A)),
         ),
       ),
-      initialRoute: Routes.splash,
+      initialRoute: Routes.authWrapper,
       onGenerateRoute: Routes.generateRoute,
     );
   }

@@ -1,0 +1,4 @@
+com.example.borktok:style/LaunchTheme = 0x7f030000
+com.example.borktok:style/NormalTheme = 0x7f030001
+com.example.borktok:mipmap/ic_launcher = 0x7f020000
+com.example.borktok:drawable/launch_background = 0x7f010000

@@ -1,4 +1,7 @@
-import 'package:borktok/screens/reports_Screen.dart';
+import 'package:borktok/auth/wrapper.dart';
+import 'package:borktok/screens/login_screen.dart';
+import 'package:borktok/screens/profile_screen.dart';
+import 'package:borktok/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 import '../screens/splash_screen.dart';
 import '../screens/main_screen.dart';
@@ -8,8 +11,15 @@ import '../screens/tinder_screen.dart';
 import '../screens/BuySell.dart';
 import '../screens/Community.dart';
 import '../screens/store_screen.dart';
+import '../screens/reports_screen.dart';
 
 class Routes {
+  // Authentication routes
+  static const String authWrapper = '/';
+  static const String login = '/login';
+  static const String signup = '/signup';
+
+  // Existing routes
   static const String splash = '/splash';
   static const String main = '/main';
   static const String home = '/home';
@@ -19,9 +29,19 @@ class Routes {
   static const String essentials = '/essentials';
   static const String store = '/store';
   static const String report = '/report';
+  static const String profile = '/profile';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      // Authentication routes
+      case authWrapper:
+        return MaterialPageRoute(builder: (_) => const AuthWrapper());
+      case login:
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
+      case signup:
+        return MaterialPageRoute(builder: (_) => const SignupScreen());
+        
+      // Existing routes
       case splash:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
       case main:
@@ -38,9 +58,11 @@ class Routes {
       case reels:
         return MaterialPageRoute(builder: (context) => const ReelsScreen());
       case tinder:
-      return MaterialPageRoute(builder: (context) => const TinderScreen());
+        return MaterialPageRoute(builder: (context) => const TinderScreen());
       case guide:
         return MaterialPageRoute(builder: (context) => const BuySell());
+      case profile:
+        return MaterialPageRoute(builder: (context) => const ProfileScreen());
       case essentials:
         return MaterialPageRoute(builder: (context) => const Community());
       case store:
@@ -49,7 +71,7 @@ class Routes {
         return MaterialPageRoute(builder: (context) => const ReportsScreen());
       default:
         return MaterialPageRoute(
-          builder: (_) => const HomeScreen(), // Default to HomeScreen instead of error page
+          builder: (_) => const HomeScreen(), // Default to HomeScreen
         );
     }
   }

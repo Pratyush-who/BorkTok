@@ -1,0 +1,46 @@
+-- Merging decision tree log ---
+application
+INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml:2:5-35:19
+INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml
+	android:extractNativeLibs
+		INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml
+	android:name
+		INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml
+manifest
+ADDED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml:1:1-47:12
+MERGED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml:1:1-47:12
+INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml:1:1-7:12
+INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml:1:1-7:12
+INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml:1:1-7:12
+	package
+		INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml
+	android:versionName
+		INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml
+	android:versionCode
+		INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml
+	xmlns:android
+		ADDED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml:1:11-69
+queries
+ADDED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml:41:5-46:15
+intent#action:name:android.intent.action.PROCESS_TEXT+data:mimeType:text/plain
+ADDED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml:42:9-45:18
+action#android.intent.action.PROCESS_TEXT
+ADDED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml:43:13-72
+	android:name
+		ADDED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml:43:21-70
+data
+ADDED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml:44:13-50
+	android:mimeType
+		ADDED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\AndroidManifest.xml:44:19-48
+uses-permission#android.permission.INTERNET
+ADDED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml:6:5-66
+	android:name
+		ADDED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml:6:22-64
+uses-sdk
+INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml
+INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\AndroidManifest.xml

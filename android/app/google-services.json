@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "442238497518",
+    "project_id": "borktok-89871",
+    "storage_bucket": "borktok-89871.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:442238497518:android:9e35b902b41d164d4b39ff",
+        "android_client_info": {
+          "package_name": "com.example.borktok"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "442238497518-4u0bl8fffb87s1mupivojkr4vr6oabrn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZYa4KbSPCLfsHAybZXlajjC7jmpjgtR8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "442238497518-4u0bl8fffb87s1mupivojkr4vr6oabrn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,7 @@
+com.example.borktok.app-pngs-0 F:\Pratyush\AppDev\borktok\BorkTok\android\app\build\generated\res\pngs\debug
+com.example.borktok.app-resValues-1 F:\Pratyush\AppDev\borktok\BorkTok\android\app\build\generated\res\resValues\debug
+com.example.borktok.app-packageDebugResources-2 F:\Pratyush\AppDev\borktok\BorkTok\android\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.example.borktok.app-packageDebugResources-3 F:\Pratyush\AppDev\borktok\BorkTok\android\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.example.borktok.app-debug-4 F:\Pratyush\AppDev\borktok\BorkTok\android\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.example.borktok.app-debug-5 F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\debug\res
+com.example.borktok.app-main-6 F:\Pratyush\AppDev\borktok\BorkTok\android\app\src\main\res

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,29 +32,46 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Future<void> _initAsync() async {
-  // Test API connection
-  _isApiConnected = await testApiConnection();
-  
-  // Load saved messages
-  await _loadMessages();
-  
-  // Update UI
-  if (mounted) {
-    setState(() {});
+    // Test API connection
+    _isApiConnected = await testApiConnection();
+
+    // Load saved messages
+    await _loadMessages();
+
+    // Update UI
+    if (mounted) {
+      setState(() {});
+    }
   }
-}
 
 Future<bool> testApiConnection() async {
   try {
-    final response = await http.get(
-      Uri.parse('https://generativelanguage.googleapis.com/v1/models?key=${GeminiApiService.apiKey}'),
+    // Use the apiService to get the key and URL
+    final apiKey = GeminiApiService.apiKey;
+    final apiUrl = GeminiApiService.apiUrl;
+    
+    if (apiKey.isEmpty) {
+      throw Exception('API key not configured');
+    }
+
+    final response = await http.post(
+      Uri.parse('$apiUrl?key=$apiKey'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'contents': [{
+          'parts': [{'text': 'Connection test'}]
+        }]
+      }),
     );
-    
-    print('API test connection status: ${response.statusCode}');
-    
-    return response.statusCode == 200;
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      final error = jsonDecode(response.body)['error']?['message'] ?? 'Unknown error';
+      throw Exception('API Error: $error (Status: ${response.statusCode})');
+    }
   } catch (e) {
-    print('API test connection failed with exception: $e');
+    debugPrint('API Connection Test Failed: $e');
     return false;
   }
 }
@@ -71,32 +89,27 @@ Future<bool> testApiConnection() async {
   }
 
   Future<void> _loadMessages() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? messagesJson = prefs.getString('dog_chat_messages');
-      if (messagesJson != null && messagesJson.isNotEmpty) {
-        if (mounted) {
-          setState(() {
-            try {
-              final List<dynamic> jsonList = json.decode(messagesJson);
-              _messages = jsonList.map((m) => ChatMessage.fromJson(m)).toList();
-            } catch (e) {
-              print("Error parsing chat messages: $e");
-              _messages = [];
-            }
-          });
-        }
-      }
-    } catch (e) {
-      print("SharedPreferences error: $e");
-      // Initialize with empty messages on error
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final messagesJson = prefs.getString('dog_chat_messages');
+    
+    if (messagesJson != null) {
+      // Parse in an isolate if the list is large
+      final messages = await compute(_parseMessages, messagesJson);
       if (mounted) {
-        setState(() {
-          _messages = [];
-        });
+        setState(() => _messages = messages);
       }
     }
+  } catch (e) {
+    debugPrint("Error loading messages: $e");
   }
+}
+
+static List<ChatMessage> _parseMessages(String jsonStr) {
+  return (json.decode(jsonStr) as List)
+      .map((m) => ChatMessage.fromJson(m))
+      .toList();
+}
 
   Future<void> _saveMessages() async {
     try {

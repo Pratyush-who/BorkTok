@@ -1,80 +1,103 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class GeminiApiService {
-  // Keep your API key here, but be cautious about security in production apps
-  static const String apiKey = 'AIzaSyDIgil7Utyc91uRuCk99FxpY1yGka-CcNk';
-  static const String apiUrl =
-      'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent';
+  static String get apiKey => dotenv.get('GEMINI_API_KEY');
+  static const String apiUrl = 
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
   Future<String> getGeminiResponse(String prompt) async {
     try {
-      print(
-        'Calling Gemini API with prompt: ${prompt.substring(0, prompt.length > 50 ? 50 : prompt.length)}...',
-      );
-
       final response = await http.post(
         Uri.parse('$apiUrl?key=$apiKey'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'contents': [
-            {
-              'parts': [
-                {
-                  'text': '''$prompt
-                
-                Please provide a comprehensive veterinary report with the following sections:
-                1. Potential Diagnosis: Based on the symptoms described
-                2. Required Tests: Tests that might be needed to confirm diagnosis
-                3. Recommended Medications: Possible treatments and medicines
-                4. Care Instructions: Home care recommendations
-                5. Precautions: Warning signs to watch for
-                6. When to Seek Emergency Care: Critical symptoms requiring immediate veterinary attention
-                
-                Format your response in a clear, structured way with appropriate sections and bold headings.
-                ''',
-                },
-              ],
-            },
-          ],
+          'contents': [{
+            'parts': [{
+              'text': 'Generate a concise veterinary report. Structure your response with clear headings: '
+                      'Condition, Key Symptoms, Diagnostic Recommendations, Treatment Options, '
+                      'Home Care, and Precautions. Provide practical, actionable advice. '
+                      'Context for report: $prompt'
+            }]
+          }],
           'generationConfig': {
             'temperature': 0.7,
-            'topK': 40,
-            'topP': 0.95,
             'maxOutputTokens': 1024,
-          },
+          }
         }),
       );
 
-      // Log the response status for debugging
-      print('Gemini API response status: ${response.statusCode}');
-      print('Gemini API response body: ${response.body}');
+      // Debug print full response for troubleshooting
+      debugPrint('API Response Status Code: ${response.statusCode}');
+      debugPrint('API Response Body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-
-        // Updated path to extract text based on the actual API response structure
-        if (jsonResponse.containsKey('candidates') &&
-            jsonResponse['candidates'].isNotEmpty &&
-            jsonResponse['candidates'][0].containsKey('content') &&
-            jsonResponse['candidates'][0]['content'].containsKey('parts') &&
-            jsonResponse['candidates'][0]['content']['parts'].isNotEmpty) {
-          return jsonResponse['candidates'][0]['content']['parts'][0]['text'];
-        } else {
-          print('Unexpected response structure: $jsonResponse');
-          throw Exception('Unexpected response structure from Gemini API');
-        }
-      } else {
-        // Log the error response body for debugging
-        print('Gemini API error: ${response.body}');
-        throw Exception(
-          'Failed to get response from Gemini API: ${response.statusCode}, ${response.body}',
-        );
+      if (response.statusCode != 200) {
+        throw Exception('API error: ${response.statusCode} - ${response.body}');
       }
+
+      final jsonResponse = jsonDecode(response.body);
+
+      // Robust error checking for response structure
+      if (jsonResponse == null || 
+          !jsonResponse.containsKey('candidates') || 
+          jsonResponse['candidates'] == null ||
+          jsonResponse['candidates'].isEmpty) {
+        throw Exception('Invalid API response structure');
+      }
+
+      final responseText = _extractResponseText(jsonResponse);
+      return _formatReport(responseText);
+      
     } catch (e) {
-      // Log detailed error for debugging
-      print('Error communicating with Gemini API: $e');
-      throw Exception('Error communicating with Gemini API: $e');
+      debugPrint('Comprehensive API Error: $e');
+      return _generateFallbackReport(prompt, e);
     }
+  }
+
+  String _extractResponseText(Map<String, dynamic> jsonResponse) {
+    try {
+      return jsonResponse['candidates'][0]['content']['parts'][0]['text'] 
+             ?? 'No detailed response received';
+    } catch (e) {
+      debugPrint('Response text extraction error: $e');
+      return 'Unable to process veterinary insights';
+    }
+  }
+
+  String _generateFallbackReport(String prompt, Object error) {
+    return '''🚨 VETERINARY REPORT - EMERGENCY GUIDANCE 🚨
+
+🔹 Connection Issue 🔹
+Unfortunately, our automated veterinary assistant encountered a technical difficulty while processing your report.
+
+⚠️ Immediate Recommendations:
+1. Check your internet connection
+2. Verify API configuration
+3. Retry generating the report
+
+📋 Initial Assessment Based on Provided Information:
+Symptoms Noted: $prompt
+
+🩺 General Advice:
+- Monitor your dog's condition closely
+- Consult a veterinarian in person if symptoms persist
+- Do not delay professional medical consultation
+
+❗ Technical Error Details:
+${error.toString()}
+
+📅 Guidance Generated: ${DateTime.now().toLocal()}
+''';
+  }
+
+  String _formatReport(String rawReport) {
+    return '''🐾 VETERINARY HEALTH REPORT 🐾
+
+$rawReport
+
+📅 Report Generated: ${DateTime.now().toLocal()}
+''';
   }
 }

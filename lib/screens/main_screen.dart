@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'reels_screen.dart';
 import 'tinder_screen.dart';
-import 'BuySell.dart';
+import 'buy and sell/BuySell.dart';
 import 'Community.dart';
 import 'store_screen.dart';
 

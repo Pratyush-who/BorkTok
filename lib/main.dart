@@ -2,24 +2,26 @@ import 'package:borktok/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'routes/routes.dart';
-
 void main() async {
   try {
-    // Ensure flutter bindings are initialized
     WidgetsFlutterBinding.ensureInitialized();
-
-    // Initialize Firebase with generated configuration
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: AndroidProvider.playIntegrity,
+      appleProvider: AppleProvider.deviceCheck,
+    );
     await dotenv.load(fileName: ".env");
-
     print('Loaded environment variables:');
     dotenv.env.forEach((key, value) {
       print('$key: $value');
     });
+
+    await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
   } catch (e) {
     print("Critical Error initializing app: $e");
   }

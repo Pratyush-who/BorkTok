@@ -1,4 +1,5 @@
 import 'package:borktok/auth/wrapper.dart';
+import 'package:borktok/screens/buy%20and%20sell/doglisting.dart';
 import 'package:borktok/screens/login_screen.dart';
 import 'package:borktok/screens/profile_screen.dart';
 import 'package:borktok/screens/signup_screen.dart';
@@ -8,7 +9,7 @@ import '../screens/main_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/reels_screen.dart';
 import '../screens/tinder_screen.dart';
-import '../screens/BuySell.dart';
+import '../screens/buy and sell/BuySell.dart';
 import '../screens/Community.dart';
 import '../screens/store_screen.dart';
 import '../screens/reports_screen.dart';
@@ -30,6 +31,7 @@ class Routes {
   static const String store = '/store';
   static const String report = '/report';
   static const String profile = '/profile';
+  static const String dogListings = '/dogListings';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -69,6 +71,9 @@ class Routes {
         return MaterialPageRoute(builder: (context) => const StoreScreen());
       case report:
         return MaterialPageRoute(builder: (context) => const ReportsScreen());
+      case Routes.dogListings:
+        return MaterialPageRoute(builder: (_) => const DogListingsScreen());
+
       default:
         return MaterialPageRoute(
           builder: (_) => const HomeScreen(), // Default to HomeScreen

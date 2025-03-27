@@ -42,7 +42,6 @@ class Routes {
         return MaterialPageRoute(builder: (_) => const LoginScreen());
       case signup:
         return MaterialPageRoute(builder: (_) => const SignupScreen());
-        
       // Existing routes
       case splash:
         return MaterialPageRoute(builder: (_) => const SplashScreen());

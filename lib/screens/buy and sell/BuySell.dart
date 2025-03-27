@@ -1,7 +1,7 @@
 import 'package:borktok/screens/buy%20and%20sell/sellyourdog.dart';
 import 'package:flutter/material.dart';
-import 'package:borktok/screens/buy and sell/doglistingmodel.dart';
-import 'package:borktok/screens/buy and sell/doglistingservice.dart';
+import 'package:borktok/screens/buy%20and%20sell/doglistingmodel.dart';
+import 'package:borktok/screens/buy%20and%20sell/doglistingservice.dart';
 
 class BuySell extends StatefulWidget {
   const BuySell({Key? key}) : super(key: key);
@@ -46,11 +46,29 @@ class _BuySellState extends State<BuySell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFF3E0), // Warm beige background
       appBar: AppBar(
-        title: const Text('Dog Listings'),
+        backgroundColor: const Color.fromARGB(255, 239, 238, 236), // Soft golden background
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(
+            'assets/logo.png', 
+            height: 30, 
+            width: 30,
+            fit: BoxFit.contain,
+          ),
+        ),
+        title: Text(
+          'Dog Listings',
+          style: TextStyle(
+            color: const Color.fromARGB(255, 16, 33, 7),
+            fontWeight: FontWeight.w700,
+            fontSize: 22,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: Icon(Icons.add, color: const Color.fromARGB(255, 4, 30, 8)),
             onPressed: () {
               Navigator.push(
                 context,
@@ -63,9 +81,18 @@ class _BuySellState extends State<BuySell> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF5D4A0)),
+              ),
+            )
           : _dogListings.isEmpty
-              ? const Center(child: Text('No dog listings available'))
+              ? Center(
+                  child: Text(
+                    'No dog listings available',
+                    style: TextStyle(color: Theme.of(context).primaryColor),
+                  ),
+                )
               : ListView.builder(
                   itemCount: _dogListings.length,
                   itemBuilder: (context, index) {
@@ -86,21 +113,29 @@ class DogListingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.all(8),
+      color: Colors.white, // White card background
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Dog Image
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Image.network(
-              dogListing.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.broken_image, size: 50),
-                );
-              },
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Image.network(
+                dogListing.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.broken_image, size: 50, color: Color.fromARGB(255, 1, 56, 30)),
+                  );
+                },
+              ),
             ),
           ),
           Padding(
@@ -111,7 +146,11 @@ class DogListingCard extends StatelessWidget {
                 // Dog Name and Breed
                 Text(
                   '${dogListing.name} - ${dogListing.breed}',
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 
@@ -120,7 +159,10 @@ class DogListingCard extends StatelessWidget {
                   children: [
                     Icon(Icons.pets, color: Theme.of(context).primaryColor),
                     const SizedBox(width: 8),
-                    Text('${dogListing.age} years old • ${dogListing.gender}'),
+                    Text(
+                      '${dogListing.age} years old • ${dogListing.gender}',
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -128,9 +170,15 @@ class DogListingCard extends StatelessWidget {
                 // Location
                 Row(
                   children: [
-                    Icon(Icons.location_on, color: Theme.of(context).primaryColor),
+                    Icon(
+                      Icons.location_on,
+                      color: Theme.of(context).primaryColor,
+                    ),
                     const SizedBox(width: 8),
-                    Text(dogListing.location),
+                    Text(
+                      dogListing.location,
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -138,29 +186,30 @@ class DogListingCard extends StatelessWidget {
                 // Price and Description
                 Text(
                   '\$${dogListing.price.toStringAsFixed(2)}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.brown[900],
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   dogListing.description,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: TextStyle(color: Theme.of(context).primaryColor),
                 ),
                 const SizedBox(height: 8),
                 
                 // Owner Info
                 Row(
                   children: [
-                    const CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      child: Icon(Icons.person, color: Colors.white),
+                    CircleAvatar(
+                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                      child: Icon(Icons.person, color: Theme.of(context).primaryColor),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       'Listed by ${dogListing.ownerName}',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: TextStyle(color: Theme.of(context).primaryColor),
                     ),
                   ],
                 ),
@@ -172,4 +221,3 @@ class DogListingCard extends StatelessWidget {
     );
   }
 }
-

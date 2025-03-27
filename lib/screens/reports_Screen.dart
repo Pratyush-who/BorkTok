@@ -27,105 +27,41 @@ class _ReportsScreenState extends State<ReportsScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize asynchronously but don't await
     _initAsync();
   }
 
   Future<void> _initAsync() async {
-    // Test API connection
     _isApiConnected = await testApiConnection();
-
-    // Load saved messages
     await _loadMessages();
 
-    // Update UI
     if (mounted) {
       setState(() {});
     }
   }
 
-Future<bool> testApiConnection() async {
-  try {
-    // Use the apiService to get the key and URL
-    final apiKey = GeminiApiService.apiKey;
-    final apiUrl = GeminiApiService.apiUrl;
-    
-    if (apiKey.isEmpty) {
-      throw Exception('API key not configured');
-    }
-
-    final response = await http.post(
-      Uri.parse('$apiUrl?key=$apiKey'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'contents': [{
-          'parts': [{'text': 'Connection test'}]
-        }]
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      final error = jsonDecode(response.body)['error']?['message'] ?? 'Unknown error';
-      throw Exception('API Error: $error (Status: ${response.statusCode})');
-    }
-  } catch (e) {
-    debugPrint('API Connection Test Failed: $e');
-    return false;
-  }
-}
-
-  void _showApiErrorSnackbar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 5),
-        ),
-      );
-    }
-  }
-
-  Future<void> _loadMessages() async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final messagesJson = prefs.getString('dog_chat_messages');
-    
-    if (messagesJson != null) {
-      // Parse in an isolate if the list is large
-      final messages = await compute(_parseMessages, messagesJson);
-      if (mounted) {
-        setState(() => _messages = messages);
-      }
-    }
-  } catch (e) {
-    debugPrint("Error loading messages: $e");
-  }
-}
-
-static List<ChatMessage> _parseMessages(String jsonStr) {
-  return (json.decode(jsonStr) as List)
-      .map((m) => ChatMessage.fromJson(m))
-      .toList();
-}
-
-  Future<void> _saveMessages() async {
+  Future<bool> testApiConnection() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final messagesJson = json.encode(
-        _messages.map((m) => m.toJson()).toList(),
-      );
-      await prefs.setString('dog_chat_messages', messagesJson);
-    } catch (e) {
-      print("Error saving messages: $e");
-      // Show error to user
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to save chat history')),
-        );
+      final apiKey = GeminiApiService.apiKey;
+      final apiUrl = GeminiApiService.apiUrl;
+      
+      if (apiKey.isEmpty) {
+        throw Exception('API key not configured');
       }
+
+      final response = await http.post(
+        Uri.parse('$apiUrl?key=$apiKey'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'contents': [{
+            'parts': [{'text': 'Connection test'}]
+          }]
+        }),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('API Connection Test Failed: $e');
+      return false;
     }
   }
 
@@ -133,9 +69,9 @@ static List<ChatMessage> _parseMessages(String jsonStr) {
     if (_breedController.text.isEmpty ||
         _ageController.text.isEmpty ||
         _symptomsController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields'))
+      );
       return;
     }
 
@@ -146,8 +82,7 @@ static List<ChatMessage> _parseMessages(String jsonStr) {
       return;
     }
 
-    final userPrompt =
-        "I have a ${_breedController.text} dog, ${_ageController.text} years old, with the following symptoms: ${_symptomsController.text}. Please provide a comprehensive report with possible conditions, precautions, medicines, and recommendations.";
+    final userPrompt = _constructDetailedPrompt();
 
     final message = ChatMessage(
       user: _currentUser,
@@ -162,6 +97,101 @@ static List<ChatMessage> _parseMessages(String jsonStr) {
 
     _getGeminiResponse(userPrompt);
     _saveMessages();
+  }
+
+  String _constructDetailedPrompt() {
+    final breed = _breedController.text;
+    final age = _ageController.text;
+    final symptoms = _symptomsController.text;
+
+    return '''Comprehensive Veterinary Health Assessment
+
+Dog Profile:
+- Breed: $breed
+- Age: $age years
+- Reported Symptoms: $symptoms
+
+Please provide a detailed health report with the following sections:
+
+1. Potential Conditions
+   - List possible medical conditions based on the symptoms
+   - Provide likelihood and severity of each condition
+   - Indicate which conditions require immediate veterinary attention
+
+2. Diagnostic Recommendations
+   - Suggested veterinary tests or examinations
+   - Potential diagnostic procedures to confirm or rule out conditions
+   - Estimated costs and importance of each test
+
+3. Treatment Options
+   - Preliminary treatment recommendations
+   - Potential medications or interventions
+   - Home care strategies
+   - When to seek immediate veterinary care
+
+4. Preventive Care
+   - Breed-specific health considerations
+   - Age-related health monitoring
+   - Lifestyle and diet recommendations
+   - Vaccination and preventive care suggestions
+
+5. Prognosis and Monitoring
+   - Expected course of potential conditions
+   - Long-term health outlook
+   - Recommendations for ongoing health management
+
+Please provide evidence-based, scientifically accurate information. Emphasize the importance of professional veterinary consultation for a definitive diagnosis.''';
+  }
+
+  void _showApiErrorSnackbar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    }
+  }
+
+  Future<void> _loadMessages() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final messagesJson = prefs.getString('dog_chat_messages');
+      
+      if (messagesJson != null) {
+        final messages = await compute(_parseMessages, messagesJson);
+        if (mounted) {
+          setState(() => _messages = messages);
+        }
+      }
+    } catch (e) {
+      debugPrint("Error loading messages: $e");
+    }
+  }
+
+  static List<ChatMessage> _parseMessages(String jsonStr) {
+    return (json.decode(jsonStr) as List)
+        .map((m) => ChatMessage.fromJson(m))
+        .toList();
+  }
+
+  Future<void> _saveMessages() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final messagesJson = json.encode(
+        _messages.map((m) => m.toJson()).toList(),
+      );
+      await prefs.setString('dog_chat_messages', messagesJson);
+    } catch (e) {
+      print("Error saving messages: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to save chat history')),
+        );
+      }
+    }
   }
 
   void _handleSendPressed(ChatMessage message) {
@@ -181,7 +211,6 @@ static List<ChatMessage> _parseMessages(String jsonStr) {
   }
 
   Future<void> _getGeminiResponse(String prompt) async {
-    // Show typing indicator
     setState(() {
       _messages.insert(
         0,
@@ -194,7 +223,6 @@ static List<ChatMessage> _parseMessages(String jsonStr) {
       final response = await _apiService.getGeminiResponse(prompt);
       print("Gemini API response received");
 
-      // Remove typing indicator
       setState(() {
         _messages.removeAt(0);
       });
@@ -210,7 +238,6 @@ static List<ChatMessage> _parseMessages(String jsonStr) {
       });
     } catch (e) {
       print("Error getting Gemini response: $e");
-      // Remove typing indicator
       setState(() {
         _messages.removeAt(0);
       });
@@ -230,6 +257,7 @@ static List<ChatMessage> _parseMessages(String jsonStr) {
     _saveMessages();
   }
 
+  // The rest of the build method remains unchanged from the original code
   @override
   Widget build(BuildContext context) {
     return Scaffold(

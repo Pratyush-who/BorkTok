@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _pickProfileImage() async {
     final pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 50, // Reduce image quality to save storage
+      imageQuality: 50,
     );
     
     if (pickedFile != null) {
@@ -87,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to upload image: $e'),
-          backgroundColor: Colors.green.shade700,
+          backgroundColor: Theme.of(context).primaryColor,
         )
       );
     }
@@ -101,21 +101,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F5DC), // Beige background
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Profile', style: TextStyle(color: Colors.white)),
-        backgroundColor: Color(0xFF4CAF50), // Green app bar
+        title: Text(
+          'Profile', 
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.white,
         elevation: 0,
+        iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
       ),
       body: currentUser == null 
         ? Center(
             child: CircularProgressIndicator(
-              color: Color(0xFF4CAF50), // Green loading indicator
+              color: Theme.of(context).primaryColor,
             )
           )
         : SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -123,14 +130,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   GestureDetector(
                     onTap: _pickProfileImage,
                     child: Stack(
+                      alignment: Alignment.bottomRight,
                       children: [
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: Color(0xFF4CAF50), // Green border
-                              width: 4,
+                              color: Theme.of(context).primaryColor,
+                              width: 3,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade300,
+                                blurRadius: 10,
+                                offset: Offset(0, 5),
+                              ),
+                            ],
                           ),
                           child: CircleAvatar(
                             radius: 80,
@@ -140,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ? FileImage(_profileImage!)
                                 : AssetImage('assets/user.jpg') as ImageProvider,
                             child: userDetails?['profileImageUrl'] == null && _profileImage == null
-                              ? Icon(Icons.camera_alt, size: 50, color: Colors.white)
+                              ? Icon(Icons.camera_alt, size: 50, color: Theme.of(context).primaryColor)
                               : null,
                           ),
                         ),
@@ -149,8 +164,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           right: 0,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Color(0xFF4CAF50), // Green edit button
+                              color: Theme.of(context).primaryColor,
                               shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.shade400,
+                                  blurRadius: 5,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
                             ),
                             child: IconButton(
                               icon: Icon(Icons.edit, color: Colors.white),
@@ -161,18 +183,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
 
                   // User Details
                   _buildProfileSection(
+                    context,
                     title: 'Personal Information',
                     children: [
                       _buildDetailRow(
+                        context,
                         icon: Icons.person,
                         label: 'Name',
                         value: userDetails?['displayName'] ?? currentUser?.displayName ?? 'Not set',
                       ),
                       _buildDetailRow(
+                        context,
                         icon: Icons.email,
                         label: 'Email',
                         value: currentUser?.email ?? 'Not available',
@@ -182,14 +207,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   // Dog Details
                   _buildProfileSection(
+                    context,
                     title: 'Dog Information',
                     children: [
                       _buildDetailRow(
+                        context,
                         icon: Icons.pets,
                         label: 'Dog Name',
                         value: userDetails?['dogName'] ?? 'Not set',
                       ),
                       _buildDetailRow(
+                        context,
                         icon: Icons.cake,
                         label: 'Dog Birthday',
                         value: userDetails?['dogDob'] != null 
@@ -197,6 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           : 'Not set',
                       ),
                       _buildDetailRow(
+                        context,
                         icon: Icons.category,
                         label: 'Dog Breed',
                         value: userDetails?['dogBreed'] ?? 'Not set',
@@ -215,8 +244,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: Colors.red.shade400,
                       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      elevation: 5,
                     ),
                   ),
                 ],
@@ -240,7 +270,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // Reusable profile section widget
-  Widget _buildProfileSection({
+  Widget _buildProfileSection(
+    BuildContext context, {
     required String title, 
     required List<Widget> children,
   }) {
@@ -250,10 +281,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.shade100),
+        border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.1),
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 5,
             offset: Offset(0, 3),
@@ -268,10 +299,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2E7D32), // Dark green
+              color: Theme.of(context).primaryColor,
             ),
           ),
-          Divider(color: Colors.green.shade200),
+          Divider(color: Theme.of(context).primaryColor.withOpacity(0.3)),
           ...children,
         ],
       ),
@@ -279,7 +310,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // Reusable detail row widget
-  Widget _buildDetailRow({
+  Widget _buildDetailRow(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required String value,
@@ -288,7 +320,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Icon(icon, color: Color(0xFF4CAF50), size: 24),
+          Icon(icon, color: Theme.of(context).primaryColor, size: 24),
           SizedBox(width: 15),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,7 +328,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.green.shade700,
+                  color: Theme.of(context).primaryColor.withOpacity(0.7),
                   fontSize: 14,
                 ),
               ),
@@ -305,7 +337,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.green.shade900,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ],

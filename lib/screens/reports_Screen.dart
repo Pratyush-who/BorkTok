@@ -6,12 +6,38 @@ import 'dart:convert';
 import 'package:borktok/constants/api.dart';
 import 'package:http/http.dart' as http;
 
+// Add this extension before the class definition
+extension StringValidation on String {
+  bool isValidDogBreed() {
+    // List of common dog breeds for validation
+    final validBreeds = [
+      'labrador', 'german shepherd', 'golden retriever', 'bulldog', 'poodle', 
+      'beagle', 'rottweiler', 'boxer', 'dachshund', 'siberian husky',
+      'great dane', 'doberman', 'australian shepherd', 'chihuahua', 'pug',
+      'corgi', 'border collie', 'shih tzu', 'yorkshire terrier', 'german shorthaired pointer'
+    ];
+
+    return validBreeds.any((breed) => 
+      toLowerCase().contains(breed.toLowerCase()));
+  }
+
+  bool isValidDogAge() {
+    try {
+      final age = double.parse(this);
+      return age > 0 && age < 25; // Reasonable dog age range
+    } catch (e) {
+      return false;
+    }
+  }
+}
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({Key? key}) : super(key: key);
 
   @override
   State<ReportsScreen> createState() => _ReportsScreenState();
 }
+
+
 
 class _ReportsScreenState extends State<ReportsScreen> {
   final ChatUser _currentUser = ChatUser(id: '1', firstName: 'User');
@@ -43,7 +69,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     try {
       final apiKey = GeminiApiService.apiKey;
       final apiUrl = GeminiApiService.apiUrl;
-      
+
       if (apiKey.isEmpty) {
         throw Exception('API key not configured');
       }
@@ -52,9 +78,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
         Uri.parse('$apiUrl?key=$apiKey'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'contents': [{
-            'parts': [{'text': 'Connection test'}]
-          }]
+          'contents': [
+            {
+              'parts': [
+                {'text': 'Connection test'},
+              ],
+            },
+          ],
         }),
       );
 
@@ -69,9 +99,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (_breedController.text.isEmpty ||
         _ageController.text.isEmpty ||
         _symptomsController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields'))
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
       return;
     }
 
@@ -100,47 +130,82 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   String _constructDetailedPrompt() {
-    final breed = _breedController.text;
-    final age = _ageController.text;
-    final symptoms = _symptomsController.text;
+    final breed = _breedController.text.trim();
+    final age = _ageController.text.trim();
+    final symptoms = _symptomsController.text.trim();
 
-    return '''Comprehensive Veterinary Health Assessment
+    // Breed validation
+    if (!breed.isValidDogBreed()) {
+      return '''❌ Breed Validation Error
+
+Breed "$breed" not recognized. Please enter a valid dog breed from our system.
+
+Supported breeds include:
+• Labrador
+• German Shepherd
+• Golden Retriever
+• Bulldog
+• Poodle
+• Beagle
+• And more...
+
+Please check the spelling or choose a breed from our list.''';
+    }
+
+    // Age validation
+    if (!age.isValidDogAge()) {
+      return '''❌ Age Validation Error
+
+The age "$age" is not valid. 
+
+Please enter a realistic dog age:
+• Puppies: 0-2 years
+• Adult dogs: 2-10 years
+• Senior dogs: 10-15 years
+
+Your entered age should be a number between 0 and 25.''';
+    }
+
+    // Symptoms validation (simple check to ensure not empty)
+    if (symptoms.isEmpty || symptoms.length < 3) {
+      return '''❌ Symptoms Validation Error
+
+Please provide more detailed symptoms about your dog's condition.
+
+Examples:
+• "Limping, loss of appetite"
+• "Coughing, lethargy"
+• "Vomiting, drinking excessive water"
+
+Detailed symptoms help in generating an accurate health report.''';
+    }
+
+    // Concise report template
+    return '''Veterinary Health Assessment
 
 Dog Profile:
-- Breed: $breed
-- Age: $age years
-- Reported Symptoms: $symptoms
+• Breed: $breed
+• Age: $age years
+• Symptoms: $symptoms
 
-Please provide a detailed health report with the following sections:
-
+Quick Health Report Sections:
 1. Potential Conditions
-   - List possible medical conditions based on the symptoms
-   - Provide likelihood and severity of each condition
-   - Indicate which conditions require immediate veterinary attention
+   - Key medical concerns
+   - Immediate risk assessment
 
-2. Diagnostic Recommendations
-   - Suggested veterinary tests or examinations
-   - Potential diagnostic procedures to confirm or rule out conditions
-   - Estimated costs and importance of each test
+2. Diagnostic Suggestions
+   - Essential tests
+   - Urgent vs. routine examinations
 
-3. Treatment Options
-   - Preliminary treatment recommendations
-   - Potential medications or interventions
+3. Treatment Recommendations
+   - Primary interventions
    - Home care strategies
-   - When to seek immediate veterinary care
 
 4. Preventive Care
-   - Breed-specific health considerations
-   - Age-related health monitoring
-   - Lifestyle and diet recommendations
-   - Vaccination and preventive care suggestions
+   - Breed-specific health tips
+   - Age-appropriate wellness advice
 
-5. Prognosis and Monitoring
-   - Expected course of potential conditions
-   - Long-term health outlook
-   - Recommendations for ongoing health management
-
-Please provide evidence-based, scientifically accurate information. Emphasize the importance of professional veterinary consultation for a definitive diagnosis.''';
+**Important**: This report is for informational purposes. Always consult a veterinarian for definitive diagnosis and treatment.''';
   }
 
   void _showApiErrorSnackbar(String message) {
@@ -159,7 +224,7 @@ Please provide evidence-based, scientifically accurate information. Emphasize th
     try {
       final prefs = await SharedPreferences.getInstance();
       final messagesJson = prefs.getString('dog_chat_messages');
-      
+
       if (messagesJson != null) {
         final messages = await compute(_parseMessages, messagesJson);
         if (mounted) {
@@ -257,7 +322,38 @@ Please provide evidence-based, scientifically accurate information. Emphasize th
     _saveMessages();
   }
 
-  // The rest of the build method remains unchanged from the original code
+  // New method to parse text with bold formatting
+  List<InlineSpan> _parseRichText(String text) {
+    final boldRegex = RegExp(r'\*\*(.*?)\*\*');
+    final matches = boldRegex.allMatches(text);
+    List<InlineSpan> spans = [];
+    int lastEnd = 0;
+
+    for (var match in matches) {
+      // Add text before the bold section
+      if (match.start > lastEnd) {
+        spans.add(TextSpan(text: text.substring(lastEnd, match.start)));
+      }
+
+      // Add bold section
+      spans.add(
+        TextSpan(
+          text: match.group(1),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
+
+      lastEnd = match.end;
+    }
+
+    // Add remaining text after last match
+    if (lastEnd < text.length) {
+      spans.add(TextSpan(text: text.substring(lastEnd)));
+    }
+
+    return spans;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -403,6 +499,13 @@ Please provide evidence-based, scientifically accurate information. Emphasize th
                   containerColor: const Color(0xFFDFF2DF),
                   currentUserContainerColor: const Color(0xFF81C784),
                   showTime: true,
+                  messageTextBuilder: (message, previousMessage, nextMessage) {
+                    return Text.rich(
+                      TextSpan(
+                        children: _parseRichText(message.text),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),

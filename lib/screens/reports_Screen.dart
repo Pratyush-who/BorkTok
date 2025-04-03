@@ -6,19 +6,13 @@ import 'dart:convert';
 import 'package:borktok/constants/api.dart';
 import 'package:http/http.dart' as http;
 
-// Add this extension before the class definition
+// Modified extension without hardcoded breeds list
 extension StringValidation on String {
   bool isValidDogBreed() {
-    // List of common dog breeds for validation
-    final validBreeds = [
-      'labrador', 'german shepherd', 'golden retriever', 'bulldog', 'poodle', 
-      'beagle', 'rottweiler', 'boxer', 'dachshund', 'siberian husky',
-      'great dane', 'doberman', 'australian shepherd', 'chihuahua', 'pug',
-      'corgi', 'border collie', 'shih tzu', 'yorkshire terrier', 'german shorthaired pointer'
-    ];
-
-    return validBreeds.any((breed) => 
-      toLowerCase().contains(breed.toLowerCase()));
+    // Instead of validating against a hardcoded list,
+    // just perform basic validation to ensure the input is reasonable
+    final trimmed = trim();
+    return trimmed.isNotEmpty && trimmed.length >= 2;
   }
 
   bool isValidDogAge() {
@@ -30,14 +24,13 @@ extension StringValidation on String {
     }
   }
 }
+
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({Key? key}) : super(key: key);
 
   @override
   State<ReportsScreen> createState() => _ReportsScreenState();
 }
-
-
 
 class _ReportsScreenState extends State<ReportsScreen> {
   final ChatUser _currentUser = ChatUser(id: '1', firstName: 'User');
@@ -138,18 +131,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (!breed.isValidDogBreed()) {
       return '''❌ Breed Validation Error
 
-Breed "$breed" not recognized. Please enter a valid dog breed from our system.
+The breed name provided is too short or empty. Please enter a valid dog breed name.
 
-Supported breeds include:
-• Labrador
-• German Shepherd
-• Golden Retriever
-• Bulldog
-• Poodle
-• Beagle
-• And more...
-
-Please check the spelling or choose a breed from our list.''';
+Your dog's breed helps us provide breed-specific health information. Please enter a valid breed name.''';
     }
 
     // Age validation

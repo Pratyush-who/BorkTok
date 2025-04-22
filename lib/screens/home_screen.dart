@@ -95,111 +95,123 @@ class HomeScreen extends StatelessWidget {
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
                     const SizedBox(height: 12),
-                    // Your Dog's Photos Section
-                    // Your Dog's Photos Section
-SizedBox(
-  height: 120,
-  child: ListView.builder(
-    scrollDirection: Axis.horizontal,
-    itemCount: 5, // Number of photos
-    itemBuilder: (context, index) {
-      // List of more reliable image URLs
-      final dogPhotos = [
-        'https://images.unsplash.com/photo-1586671267731-da2cf3ceeb80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // German Shepherd 1
-        'https://images.unsplash.com/photo-1615751072497-5f5169febe17?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // German Shepherd 2
-        'https://images.unsplash.com/photo-1601758003122-53c40e686a19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // Golden Retriever
-        'https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // Labrador
-        'https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // Beagle
-      ];
+                    SizedBox(
+                      height: 120,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 5,
+                        itemBuilder: (context, index) {
+                          // List of more reliable image URLs
+                          final dogPhotos = [
+                            'https://images.unsplash.com/photo-1586671267731-da2cf3ceeb80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // German Shepherd 1
+                            'https://images.unsplash.com/photo-1615751072497-5f5169febe17?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // German Shepherd 2
+                            'https://images.unsplash.com/photo-1601758003122-53c40e686a19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // Golden Retriever
+                            'https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // Labrador
+                            'https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // Beagle
+                          ];
 
-      return Container(
-        width: 120,
-        margin: const EdgeInsets.only(right: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.grey.shade200,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              spreadRadius: 0,
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Stack(
-            children: [
-              // Display the online dog photo with better error handling
-              Image.network(
-                dogPhotos[index],
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey[200],
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error, color: Colors.red, size: 30),
-                          SizedBox(height: 4),
-                          Text(
-                            'Image failed to load',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey[600],
+                          return Container(
+                            width: 120,
+                            margin: const EdgeInsets.only(right: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey.shade200,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  spreadRadius: 0,
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Stack(
+                                children: [
+                                  // Display the online dog photo with better error handling
+                                  Image.network(
+                                    dogPhotos[index],
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (
+                                      context,
+                                      child,
+                                      loadingProgress,
+                                    ) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value:
+                                              loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                          .cumulativeBytesLoaded /
+                                                      loadingProgress
+                                                          .expectedTotalBytes!
+                                                  : null,
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Colors.grey[200],
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.error,
+                                                color: Colors.red,
+                                                size: 30,
+                                              ),
+                                              SizedBox(height: 4),
+                                              Text(
+                                                'Image failed to load',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.grey[600],
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 4,
+                                        horizontal: 8,
+                                      ),
+                                      color: Colors.black.withOpacity(0.4),
+                                      child: Text(
+                                        index == 0
+                                            ? 'Today'
+                                            : '${index > 3 ? "2" : "1"} week${index > 3 ? "s" : ""} ago',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
-                  );
-                },
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 4,
-                    horizontal: 8,
-                  ),
-                  color: Colors.black.withOpacity(0.4),
-                  child: Text(
-                    index == 0
-                        ? 'Today'
-                        : '${index > 3 ? "2" : "1"} week${index > 3 ? "s" : ""} ago',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  ),
-),
                   ],
                 ),
               ),
@@ -667,283 +679,207 @@ SizedBox(
                 ),
               ),
             ),
-            // NGO Contact Section
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        spreadRadius: 0,
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                          horizontal: 16,
+                child: GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, Routes.ngopage),
+                  child: Container(
+                    height: 280,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          spreadRadius: 0,
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
                         ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Theme.of(context).primaryColor,
-                              Theme.of(context).colorScheme.secondary,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(16),
-                            topRight: Radius.circular(16),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.volunteer_activism,
-                                color: Colors.white,
-                                size: 28,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Connect with Dog NGOs',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Support organizations that help dogs in need',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.9),
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: List.generate(3, (index) {
-                            final ngoNames = [
-                              'Paws Rescue Center',
-                              'Happy Tails Foundation',
-                              'Canine Care Coalition',
-                            ];
-                            final ngoDescriptions = [
-                              'Shelter and adoption services for stray dogs',
-                              'Medical treatment for injured street dogs',
-                              'Food and welfare programs for dogs in need',
-                            ];
-                            final icons = [
-                              Icons.home_outlined,
-                              Icons.medical_services_outlined,
-                              Icons.fastfood_outlined,
-                            ];
-
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                bottom: index < 2 ? 14.0 : 0.0,
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.grey.shade200,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 70,
-                                      height: 70,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Theme.of(
-                                          context,
-                                        ).primaryColor.withOpacity(0.1),
-                                      ),
-                                      child: Center(
-                                        child: Icon(
-                                          icons[index],
-                                          color: Theme.of(context).primaryColor,
-                                          size: 32,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 14),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            ngoNames[index],
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.titleMedium?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color:
-                                                  Theme.of(
-                                                    context,
-                                                  ).primaryColor,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Text(
-                                            ngoDescriptions[index],
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.bodyMedium?.copyWith(
-                                              color: Colors.grey.shade700,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Row(
-                                            children: [
-                                              OutlinedButton.icon(
-                                                onPressed: () {},
-                                                icon: Icon(
-                                                  Icons.phone,
-                                                  size: 16,
-                                                  color:
-                                                      Theme.of(
-                                                        context,
-                                                      ).primaryColor,
-                                                ),
-                                                label: Text(
-                                                  'Contact',
-                                                  style: TextStyle(
-                                                    color:
-                                                        Theme.of(
-                                                          context,
-                                                        ).primaryColor,
-                                                  ),
-                                                ),
-                                                style: OutlinedButton.styleFrom(
-                                                  side: BorderSide(
-                                                    color:
-                                                        Theme.of(
-                                                          context,
-                                                        ).primaryColor,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 8,
-                                                      ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              ElevatedButton.icon(
-                                                onPressed: () {},
-                                                icon: const Icon(
-                                                  Icons.favorite,
-                                                  size: 16,
-                                                ),
-                                                label: const Text('Donate'),
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      Theme.of(
-                                                        context,
-                                                      ).primaryColor,
-                                                  foregroundColor: Colors.white,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 8,
-                                                      ),
-                                                ),
-                                              ),
+                      ],
+                    ),
+                    child: Stack(
+                      children: [
+                        // Background with gradient overlay
+                        Positioned.fill(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Stack(
+                              children: [
+                                // Background image
+                                Image.asset(
+                                  'assets/dog_ngo.jpg', // Add this image to your assets
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  errorBuilder:
+                                      (context, error, stackTrace) => Container(
+                                        decoration: const BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              Color(0xFF2E7D32), // Dark green
+                                              Color(0xFF81C784), // Light green
                                             ],
                                           ),
-                                        ],
+                                        ),
                                       ),
+                                ),
+                                // Gradient overlay
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                      colors: [
+                                        Colors.transparent,
+                                        Color(
+                                          0xFF2E7D32,
+                                        ).withOpacity(0.8), // Dark green
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Content
+                        Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              // NGO Icon with circle background
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFFF5F5DC,
+                                  ).withOpacity(0.9), // Beige
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.volunteer_activism,
+                                  color: Color(0xFF2E7D32), // Dark green
+                                  size: 30,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Title
+                              Text(
+                                'Connect with Dog NGOs',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  shadows: [
+                                    Shadow(
+                                      blurRadius: 3.0,
+                                      color: Colors.black.withOpacity(0.3),
+                                      offset: const Offset(0, 1),
                                     ),
                                   ],
                                 ),
                               ),
-                            );
-                          }),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 16.0,
-                          right: 16.0,
-                          bottom: 16.0,
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            minimumSize: const Size(double.infinity, 0),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.pets, size: 18),
-                              const SizedBox(width: 8),
+                              const SizedBox(height: 8),
+
+                              // Description
                               Text(
-                                'View All NGOs',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.titleMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                'Support organizations that rescue, shelter, and care for dogs in need',
+                                style: TextStyle(
+                                  color: const Color(0xFFF5F5DC), // Beige text
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  shadows: [
+                                    Shadow(
+                                      blurRadius: 3.0,
+                                      color: Colors.black.withOpacity(0.3),
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Button
+                              ElevatedButton(
+                                onPressed:
+                                    () => Navigator.pushNamed(
+                                      context,
+                                      Routes.ngopage,
+                                    ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(
+                                    0xFFF5F5DC,
+                                  ), // Beige
+                                  foregroundColor: const Color(
+                                    0xFF2E7D32,
+                                  ), // Dark green
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Explore NGOs',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(
+                                      Icons.arrow_forward_rounded,
+                                      size: 18,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    ],
+
+                        // Paw print decorations
+                        Positioned(
+                          top: 20,
+                          right: 20,
+                          child: Icon(
+                            Icons.pets,
+                            color: Colors.white.withOpacity(0.2),
+                            size: 28,
+                          ),
+                        ),
+                        Positioned(
+                          top: 60,
+                          right: 50,
+                          child: Icon(
+                            Icons.pets,
+                            color: Colors.white.withOpacity(0.15),
+                            size: 20,
+                          ),
+                        ),
+                        Positioned(
+                          top: 40,
+                          right: 80,
+                          child: Icon(
+                            Icons.pets,
+                            color: Colors.white.withOpacity(0.1),
+                            size: 16,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

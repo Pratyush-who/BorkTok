@@ -1,4 +1,5 @@
 import 'package:borktok/auth/wrapper.dart';
+import 'package:borktok/screens/Bookavetpage.dart';
 import 'package:borktok/screens/buy%20and%20sell/doglisting.dart';
 import 'package:borktok/screens/login_screen.dart';
 import 'package:borktok/screens/profile_screen.dart';
@@ -32,6 +33,7 @@ class Routes {
   static const String report = '/report';
   static const String profile = '/profile';
   static const String dogListings = '/dogListings';
+  static const String bookavet = '/bookavet';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -68,6 +70,8 @@ class Routes {
         return MaterialPageRoute(builder: (context) => const Community());
       case store:
         return MaterialPageRoute(builder: (context) => const StoreScreen());
+      case bookavet:
+        return MaterialPageRoute(builder: (context) => const Bookavetpage());
       case report:
         return MaterialPageRoute(builder: (context) => const ReportsScreen());
       case Routes.dogListings:

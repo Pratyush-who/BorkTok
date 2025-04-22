@@ -38,7 +38,6 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {},
                 ),
                 IconButton(
-                  
                   icon: Image.asset('assets/evett.png', width: 40),
                   color: Colors.grey.shade700,
                   onPressed: () {
@@ -55,7 +54,8 @@ class HomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InkWell(
-                      onTap: () => Navigator.of(context).pushNamed(Routes.profile),
+                      onTap:
+                          () => Navigator.of(context).pushNamed(Routes.profile),
                       child: Row(
                         children: [
                           CircleAvatar(
@@ -74,7 +74,8 @@ class HomeScreen extends StatelessWidget {
                             children: [
                               Text(
                                 'Welcome, Pratyush!',
-                                style: Theme.of(context).textTheme.headlineMedium,
+                                style:
+                                    Theme.of(context).textTheme.headlineMedium,
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -95,105 +96,110 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     // Your Dog's Photos Section
-                    SizedBox(
-                      height: 120,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 5, // Number of photos
-                        itemBuilder: (context, index) {
-                          // List of online image URLs
-                          final dogPhotos = [
-                            'https://www.vidavetcare.com/wp-content/uploads/sites/234/2022/04/german-shepherd-dog-breed-info.jpeg',
-                            'https://upload.wikimedia.org/wikipedia/commons/d/d0/German_Shepherd_-_DSC_0346_%2810096362833%29.jpg',
-                            'https://images.unsplash.com/photo-1605725657590-b2cf0d31b1a5?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Z2VybWFuJTIwc2hlcGhlcmQlMjBkb2d8ZW58MHx8MHx8fDA%3D',
-                            'https://rukminim2.flixcart.com/image/850/1000/kydb3ww0/poster/q/u/8/small-cute-german-shepherd-dog-poster-multicolor-photo-paper-original-imagama4zpvezqyy.jpeg?q=90&crop=false',
-                            'https://puppiezo.com/wp-content/uploads/2023/06/66D94BC4-0C24-4527-B9D9-FE6521FB6E18.jpeg',
-                          ];
+                    // Your Dog's Photos Section
+SizedBox(
+  height: 120,
+  child: ListView.builder(
+    scrollDirection: Axis.horizontal,
+    itemCount: 5, // Number of photos
+    itemBuilder: (context, index) {
+      // List of more reliable image URLs
+      final dogPhotos = [
+        'https://images.unsplash.com/photo-1586671267731-da2cf3ceeb80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // German Shepherd 1
+        'https://images.unsplash.com/photo-1615751072497-5f5169febe17?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // German Shepherd 2
+        'https://images.unsplash.com/photo-1601758003122-53c40e686a19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // Golden Retriever
+        'https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // Labrador
+        'https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // Beagle
+      ];
 
-                          return Container(
-                            width: 120,
-                            margin: const EdgeInsets.only(right: 12),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.grey.shade200,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  spreadRadius: 0,
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+      return Container(
+        width: 120,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.grey.shade200,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              spreadRadius: 0,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Stack(
+            children: [
+              // Display the online dog photo with better error handling
+              Image.network(
+                dogPhotos[index],
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey[200],
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error, color: Colors.red, size: 30),
+                          SizedBox(height: 4),
+                          Text(
+                            'Image failed to load',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey[600],
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Stack(
-                                children: [
-                                  // Display the online dog photo
-                                  Image.network(
-                                    dogPhotos[index],
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    fit: BoxFit.cover,
-                                    loadingBuilder: (
-                                      context,
-                                      child,
-                                      loadingProgress,
-                                    ) {
-                                      if (loadingProgress == null) return child;
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value:
-                                              loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                          .cumulativeBytesLoaded /
-                                                      loadingProgress
-                                                          .expectedTotalBytes!
-                                                  : null,
-                                        ),
-                                      );
-                                    },
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Center(
-                                        child: Icon(
-                                          Icons.error,
-                                          color: Colors.red,
-                                          size: 40,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 4,
-                                        horizontal: 8,
-                                      ),
-                                      color: Colors.black.withOpacity(0.4),
-                                      child: Text(
-                                        index == 0
-                                            ? 'Today'
-                                            : '${index > 3 ? "2" : "1"} week${index > 3 ? "s" : ""} ago',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     ),
+                  );
+                },
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 8,
+                  ),
+                  color: Colors.black.withOpacity(0.4),
+                  child: Text(
+                    index == 0
+                        ? 'Today'
+                        : '${index > 3 ? "2" : "1"} week${index > 3 ? "s" : ""} ago',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  ),
+),
                   ],
                 ),
               ),
@@ -338,208 +344,247 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             // Dog Friends Section
-           // Dog Friends Section
-SliverToBoxAdapter(
-  child: Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Dog Friends Nearby',
-              style: Theme.of(context).textTheme.displayMedium,
-            ),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                'View All',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 280,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 4,
-            itemBuilder: (context, index) {
-              final breeds = [
-                'Golden Retriever',
-                'Labrador',
-                'Beagle',
-                'Corgi',
-              ];
-              final ages = [
-                '2 years',
-                '3 years',
-                '1 year',
-                '4 years',
-              ];
-              final distances = [
-                '0.5 miles',
-                '0.8 miles',
-                '1.2 miles',
-                '1.5 miles',
-              ];
-              final tasveer = [
-                'https://www.vidavetcare.com/wp-content/uploads/sites/234/2022/04/german-shepherd-dog-breed-info.jpeg',
-                'https://upload.wikimedia.org/wikipedia/commons/d/d0/German_Shepherd_-_DSC_0346_%2810096362833%29.jpg',
-                'https://images.unsplash.com/photo-1605725657590-b2cf0d31b1a5?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Z2VybWFuJTIwc2hlcGhlcmQlMjBkb2d8ZW58MHx8MHx8fDA%3D',
-                'https://rukminim2.flixcart.com/image/850/1000/kydb3ww0/poster/q/u/8/small-cute-german-shepherd-dog-poster-multicolor-photo-paper-original-imagama4zpvezqyy.jpeg?q=90&crop=false',
-              ];
-
-              return Container(
-                width: 180,
-                margin: const EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      spreadRadius: 0,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+            // Dog Friends Section
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      height: 130,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                          topRight: Radius.circular(16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Dog Friends Nearby',
+                          style: Theme.of(context).textTheme.displayMedium,
                         ),
-                      ),
-                      child: Stack(
-                        children: [
-                          // Display the online dog photo
-                          Image.network(
-                            tasveer[index],
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              return Center(
-                                child: Icon(
-                                  Icons.error,
-                                  color: Colors.red,
-                                  size: 40,
-                                ),
-                              );
-                            },
-                          ),
-                          Positioned(
-                            bottom: 8,
-                            right: 8,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 4,
-                                horizontal: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                distances[index],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            'View All',
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Charlie ${index + 1}',
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                index % 2 == 0 ? Icons.male : Icons.female,
-                                size: 16,
-                                color: index % 2 == 0 ? Colors.blue : Colors.pink,
-                              ),
-                            ],
-                          ),
-                          Text(
-                            breeds[index],
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: Colors.grey.shade600),
-                          ),
-                          Text(
-                            ages[index],
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: Colors.grey.shade600),
-                          ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton(
-                              onPressed: () {},
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                  color: Theme.of(context).primaryColor,
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 280,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 4,
+                        itemBuilder: (context, index) {
+                          final breeds = [
+                            'Golden Retriever',
+                            'Labrador',
+                            'Beagle',
+                            'Corgi',
+                          ];
+                          final ages = [
+                            '2 years',
+                            '3 years',
+                            '1 year',
+                            '4 years',
+                          ];
+                          final distances = [
+                            '0.5 miles',
+                            '0.8 miles',
+                            '1.2 miles',
+                            '1.5 miles',
+                          ];
+                          final tasveer = [
+                            'https://www.vidavetcare.com/wp-content/uploads/sites/234/2022/04/german-shepherd-dog-breed-info.jpeg',
+                            'https://upload.wikimedia.org/wikipedia/commons/d/d0/German_Shepherd_-_DSC_0346_%2810096362833%29.jpg',
+                            'https://images.unsplash.com/photo-1605725657590-b2cf0d31b1a5?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Z2VybWFuJTIwc2hlcGhlcmQlMjBkb2d8ZW58MHx8MHx8fDA%3D',
+                            'https://rukminim2.flixcart.com/image/850/1000/kydb3ww0/poster/q/u/8/small-cute-german-shepherd-dog-poster-multicolor-photo-paper-original-imagama4zpvezqyy.jpeg?q=90&crop=false',
+                          ];
+
+                          return Container(
+                            width: 180,
+                            margin: const EdgeInsets.only(right: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  spreadRadius: 0,
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                'Connect',
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
+                              ],
                             ),
-                          ),
-                        ],
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  height: 130,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(16),
+                                      topRight: Radius.circular(16),
+                                    ),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      // Display the online dog photo
+                                      Image.network(
+                                        tasveer[index],
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        fit: BoxFit.cover,
+                                        loadingBuilder: (
+                                          context,
+                                          child,
+                                          loadingProgress,
+                                        ) {
+                                          if (loadingProgress == null)
+                                            return child;
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              value:
+                                                  loadingProgress
+                                                              .expectedTotalBytes !=
+                                                          null
+                                                      ? loadingProgress
+                                                              .cumulativeBytesLoaded /
+                                                          loadingProgress
+                                                              .expectedTotalBytes!
+                                                      : null,
+                                            ),
+                                          );
+                                        },
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          return Center(
+                                            child: Icon(
+                                              Icons.error,
+                                              color: Colors.red,
+                                              size: 40,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      Positioned(
+                                        bottom: 8,
+                                        right: 8,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                            horizontal: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            distances[index],
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Charlie ${index + 1}',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            index % 2 == 0
+                                                ? Icons.male
+                                                : Icons.female,
+                                            size: 16,
+                                            color:
+                                                index % 2 == 0
+                                                    ? Colors.blue
+                                                    : Colors.pink,
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        breeds[index],
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium?.copyWith(
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                      Text(
+                                        ages[index],
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium?.copyWith(
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: OutlinedButton(
+                                          onPressed: () {},
+                                          style: OutlinedButton.styleFrom(
+                                            side: BorderSide(
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).primaryColor,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'Connect',
+                                            style: TextStyle(
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).primaryColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
                 ),
-              );
-            },
-          ),
-        ),
-      ],
-    ),
-  ),
-),
+              ),
+            ),
 
             // Hero Banner (improved version)
             SliverToBoxAdapter(
@@ -584,18 +629,23 @@ SliverToBoxAdapter(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Track your dog\'s\nhealth metrics',
+                              'Book a offline vet for your dog.',
                               style: Theme.of(context).textTheme.displayMedium
                                   ?.copyWith(color: Colors.white, height: 1.2),
                             ),
-                            SizedBox(height: 10,),
+                            SizedBox(height: 10),
                             Text(
-                              'Get your dog\'s health metrics in one place',
-                              style: TextStyle(fontSize: 12,color: Colors.white)
+                              'Get a professional vet at your doorstep.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                              ),
                             ),
                             const SizedBox(height: 6),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.pushNamed(context, Routes.bookavet);
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 foregroundColor: Theme.of(context).primaryColor,
@@ -607,7 +657,7 @@ SliverToBoxAdapter(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              child: const Text('Start Tracking'),
+                              child: const Text('Book Now'),
                             ),
                           ],
                         ),
@@ -617,93 +667,284 @@ SliverToBoxAdapter(
                 ),
               ),
             ),
-            // Community Highlights
+            // NGO Contact Section
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Community Highlights',
-                      style: Theme.of(context).textTheme.displayMedium,
-                    ),
-                    const SizedBox(height: 16),
-                    GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 1,
-                          ),
-                      itemCount: 4,
-                      itemBuilder: (context, index) {
-                        final titles = [
-                          'Friendly Groomer',
-                          'Pet-friendly Café',
-                          'Dog Training',
-                          'Pet Photography',
-                        ];
-
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                spreadRadius: 0,
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        spreadRadius: 0,
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                          horizontal: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Theme.of(context).primaryColor,
+                              Theme.of(context).colorScheme.secondary,
                             ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            topRight: Radius.circular(16),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.volunteer_activism,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Connect with Dog NGOs',
+                                    style: Theme.of(
                                       context,
-                                    ).primaryColor.withOpacity(0.1),
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(16),
-                                      topRight: Radius.circular(16),
+                                    ).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                  child: Center(
-                                    child: Icon(
-                                      index == 0
-                                          ? Icons.cut
-                                          : (index == 1
-                                              ? Icons.coffee
-                                              : (index == 2
-                                                  ? Icons.school
-                                                  : Icons.camera_alt)),
-                                      size: 40,
-                                      color: Theme.of(context).primaryColor,
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Support organizations that help dogs in need',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontSize: 14,
                                     ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: List.generate(3, (index) {
+                            final ngoNames = [
+                              'Paws Rescue Center',
+                              'Happy Tails Foundation',
+                              'Canine Care Coalition',
+                            ];
+                            final ngoDescriptions = [
+                              'Shelter and adoption services for stray dogs',
+                              'Medical treatment for injured street dogs',
+                              'Food and welfare programs for dogs in need',
+                            ];
+                            final icons = [
+                              Icons.home_outlined,
+                              Icons.medical_services_outlined,
+                              Icons.fastfood_outlined,
+                            ];
+
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                bottom: index < 2 ? 14.0 : 0.0,
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade50,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
                                   ),
                                 ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 70,
+                                      height: 70,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Theme.of(
+                                          context,
+                                        ).primaryColor.withOpacity(0.1),
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          icons[index],
+                                          color: Theme.of(context).primaryColor,
+                                          size: 32,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            ngoNames[index],
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).primaryColor,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            ngoDescriptions[index],
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodyMedium?.copyWith(
+                                              color: Colors.grey.shade700,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Row(
+                                            children: [
+                                              OutlinedButton.icon(
+                                                onPressed: () {},
+                                                icon: Icon(
+                                                  Icons.phone,
+                                                  size: 16,
+                                                  color:
+                                                      Theme.of(
+                                                        context,
+                                                      ).primaryColor,
+                                                ),
+                                                label: Text(
+                                                  'Contact',
+                                                  style: TextStyle(
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).primaryColor,
+                                                  ),
+                                                ),
+                                                style: OutlinedButton.styleFrom(
+                                                  side: BorderSide(
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).primaryColor,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 8,
+                                                      ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              ElevatedButton.icon(
+                                                onPressed: () {},
+                                                icon: const Icon(
+                                                  Icons.favorite,
+                                                  size: 16,
+                                                ),
+                                                label: const Text('Donate'),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      Theme.of(
+                                                        context,
+                                                      ).primaryColor,
+                                                  foregroundColor: Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 8,
+                                                      ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Text(
-                                  titles[index],
-                                  style: Theme.of(context).textTheme.bodyLarge
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
+                            );
+                          }),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 16.0,
+                          right: 16.0,
+                          bottom: 16.0,
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            minimumSize: const Size(double.infinity, 0),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.pets, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                'View All NGOs',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
                           ),
-                        );
-                      },
-                    ),
-                  ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

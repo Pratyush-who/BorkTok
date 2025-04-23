@@ -96,7 +96,13 @@ class _NgoPageState extends State<NgoPage> {
   int userPoints = 600; // Default starting points
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  
+
+  final GlobalKey<FormState> _feedbackFormKey = GlobalKey<FormState>();
+  final TextEditingController _feedbackController = TextEditingController();
+  int _selectedNgoId = 1;
+  int _selectedRating = 5;
+  bool _isFeedbackSubmitted = false;
+
   // Map to track donations to each NGO
   Map<int, int> ngoDonations = {};
 
@@ -111,7 +117,8 @@ class _NgoPageState extends State<NgoPage> {
   Future<void> _loadUserPoints() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      userPoints = prefs.getInt('userPoints') ?? 600; // Default to 600 if not set
+      userPoints =
+          prefs.getInt('userPoints') ?? 600; // Default to 600 if not set
     });
   }
 
@@ -127,7 +134,7 @@ class _NgoPageState extends State<NgoPage> {
       userPoints = 600;
     });
     await _saveUserPoints();
-    
+
     // Show a brief feedback to user
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -136,7 +143,7 @@ class _NgoPageState extends State<NgoPage> {
         behavior: SnackBarBehavior.floating,
       ),
     );
-    
+
     // Add haptic feedback
     HapticFeedback.mediumImpact();
   }
@@ -158,7 +165,7 @@ class _NgoPageState extends State<NgoPage> {
     int currentDonation = prefs.getInt('ngoDonation_${ngoId}') ?? 0;
     int newDonation = currentDonation + donationAmount;
     await prefs.setInt('ngoDonation_${ngoId}', newDonation);
-    
+
     setState(() {
       ngoDonations[ngoId] = newDonation;
     });
@@ -168,15 +175,26 @@ class _NgoPageState extends State<NgoPage> {
   int getRemainingPoints(NgoModel ngo) {
     int donatedAmount = ngoDonations[ngo.id] ?? 0;
     int calculatedPointsRequired = ngo.pointsRequired;
-    
+
     // Reduce points required based on previous donations
     // For example, reduce by 10% of donated amount (adjust formula as needed)
     if (donatedAmount > 0) {
       int reduction = (donatedAmount * 0.1).round();
-      calculatedPointsRequired = (ngo.pointsRequired - reduction).clamp(50, ngo.pointsRequired);
+      calculatedPointsRequired = (ngo.pointsRequired - reduction).clamp(
+        50,
+        ngo.pointsRequired,
+      );
     }
-    
+
     return calculatedPointsRequired;
+  }
+
+  @override
+  void dispose() {
+    _feedbackController.dispose();
+    _locationController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -216,7 +234,11 @@ class _NgoPageState extends State<NgoPage> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.monetization_on, color: Colors.amber, size: 18),
+                        Icon(
+                          Icons.monetization_on,
+                          color: Colors.amber,
+                          size: 18,
+                        ),
                         SizedBox(width: 5),
                         Text(
                           '$userPoints points',
@@ -271,7 +293,9 @@ class _NgoPageState extends State<NgoPage> {
                   children: [
                     Text(
                       'Supporting Organizations',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
@@ -292,19 +316,16 @@ class _NgoPageState extends State<NgoPage> {
 
             // NGO List
             SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final ngo = ngos[index];
-                  return _buildNgoCard(ngo);
-                },
-                childCount: ngos.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final ngo = ngos[index];
+                return _buildNgoCard(ngo);
+              }, childCount: ngos.length),
             ),
-
-            // Extra space at bottom
             SliverToBoxAdapter(
-              child: SizedBox(height: 80),
-            ),
+            child: _buildFeedbackForm(),
+          ),
+            // Extra space at bottom
+            SliverToBoxAdapter(child: SizedBox(height: 10)),
           ],
         ),
       ),
@@ -330,10 +351,7 @@ class _NgoPageState extends State<NgoPage> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.pets,
-                color: Theme.of(context).primaryColor,
-              ),
+              Icon(Icons.pets, color: Theme.of(context).primaryColor),
               SizedBox(width: 8),
               Text(
                 'Request Help for a Dog',
@@ -354,7 +372,10 @@ class _NgoPageState extends State<NgoPage> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 12,
+                horizontal: 16,
+              ),
             ),
           ),
           SizedBox(height: 12),
@@ -370,7 +391,10 @@ class _NgoPageState extends State<NgoPage> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 12,
+                horizontal: 16,
+              ),
               hintText: 'Is the dog injured? Abandoned? Needs adoption?',
             ),
           ),
@@ -383,7 +407,7 @@ class _NgoPageState extends State<NgoPage> {
                 _showRequestSentDialog();
                 _locationController.clear();
                 _descriptionController.clear();
-                
+
                 // Reward user with points for reporting
                 setState(() {
                   userPoints += 50;
@@ -410,7 +434,7 @@ class _NgoPageState extends State<NgoPage> {
   Widget _buildNgoCard(NgoModel ngo) {
     int pointsRequired = getRemainingPoints(ngo);
     int totalDonated = ngoDonations[ngo.id] ?? 0;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: InkWell(
@@ -470,11 +494,7 @@ class _NgoPageState extends State<NgoPage> {
                       SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                            size: 16,
-                          ),
+                          Icon(Icons.star, color: Colors.amber, size: 16),
                           SizedBox(width: 4),
                           Text(
                             '${ngo.rating} (${ngo.reviews})',
@@ -485,9 +505,14 @@ class _NgoPageState extends State<NgoPage> {
                           ),
                           SizedBox(width: 16),
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor.withOpacity(0.1),
+                              color: Theme.of(
+                                context,
+                              ).primaryColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
@@ -562,302 +587,308 @@ class _NgoPageState extends State<NgoPage> {
   void _showNgoDetailsBottomSheet(NgoModel ngo) {
     int pointsRequired = getRemainingPoints(ngo);
     int totalDonated = ngoDonations[ngo.id] ?? 0;
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (_, controller) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: ListView(
-              controller: controller,
-              padding: EdgeInsets.zero,
-              children: [
-                // Drag handle
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10.0, bottom: 8.0),
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(2),
+      builder:
+          (context) => DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
+            builder: (_, controller) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: ListView(
+                  controller: controller,
+                  padding: EdgeInsets.zero,
+                  children: [
+                    // Drag handle
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10.0, bottom: 8.0),
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                
-                // Header section with NGO name
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          ngo.icon,
-                          color: Theme.of(context).primaryColor,
-                          size: 28,
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ngo.name,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
+
+                    // Header section with NGO name
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            SizedBox(height: 4),
-                            Row(
+                            child: Icon(
+                              ngo.icon,
+                              color: Theme.of(context).primaryColor,
+                              size: 28,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
                                 Text(
-                                  '${ngo.rating} (${ngo.reviews} reviews)',
+                                  ngo.name,
                                   style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey.shade700,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
                                   ),
+                                ),
+                                SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                      size: 16,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      '${ngo.rating} (${ngo.reviews} reviews)',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                
-                // Points and donations information
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.monetization_on,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Donation requires $pointsRequired points',
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (totalDonated > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Container(
+                    ),
+
+                    // Points and donations information
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        children: [
+                          Container(
                             padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
+                              color: Theme.of(
+                                context,
+                              ).primaryColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.volunteer_activism,
-                                  color: Colors.green,
+                                  Icons.monetization_on,
+                                  color: Theme.of(context).primaryColor,
                                 ),
                                 SizedBox(width: 8),
                                 Text(
-                                  'You have donated $totalDonated points so far',
+                                  'Donation requires $pointsRequired points',
                                   style: TextStyle(
-                                    color: Colors.green,
+                                    color: Theme.of(context).primaryColor,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                                    fontSize: 16,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                ),
-                
-                // About section
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'About',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                          if (totalDonated > 0)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Container(
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.volunteer_activism,
+                                      color: Colors.green,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'You have donated $totalDonated points so far',
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      SizedBox(height: 8),
-                      Text(
-                        ngo.longDescription,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade800,
-                          height: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Contact information
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Contact Information',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      _buildContactItem(Icons.location_on, ngo.address),
-                      SizedBox(height: 12),
-                      _buildContactItem(Icons.phone, ngo.phone),
-                      SizedBox(height: 12),
-                      _buildContactItem(Icons.email, ngo.email),
-                      SizedBox(height: 12),
-                      _buildContactItem(Icons.language, ngo.website),
-                    ],
-                  ),
-                ),
-                
-                // Activity feed
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Recent Activities',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      _buildActivityItem(
-                        'Rescued 5 puppies from a drainage',
-                        '2 days ago',
-                        Icons.pets,
-                      ),
-                      _buildActivityItem(
-                        'Conducted vaccination drive at local shelter',
-                        '1 week ago',
-                        Icons.medical_services,
-                      ),
-                      _buildActivityItem(
-                        'Successfully rehomed 3 senior dogs',
-                        '2 weeks ago',
-                        Icons.home,
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Buttons
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            if (userPoints >= pointsRequired) {
-                              _showDonationDialog(ngo);
-                            } else {
-                              _showInsufficientPointsDialog();
-                            }
-                          },
-                          icon: Icon(Icons.volunteer_activism),
-                          label: Text('Donate Points'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColor,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                    ),
+
+                    // About section
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'About',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
                           ),
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            // Implement contact functionality
-                          },
-                          icon: Icon(Icons.message),
-                          label: Text('Contact'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Theme.of(context).primaryColor,
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                            side: BorderSide(color: Theme.of(context).primaryColor),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                          SizedBox(height: 8),
+                          Text(
+                            ngo.longDescription,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey.shade800,
+                              height: 1.5,
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+
+                    // Contact information
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Contact Information',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          _buildContactItem(Icons.location_on, ngo.address),
+                          SizedBox(height: 12),
+                          _buildContactItem(Icons.phone, ngo.phone),
+                          SizedBox(height: 12),
+                          _buildContactItem(Icons.email, ngo.email),
+                          SizedBox(height: 12),
+                          _buildContactItem(Icons.language, ngo.website),
+                        ],
+                      ),
+                    ),
+
+                    // Activity feed
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Recent Activities',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          _buildActivityItem(
+                            'Rescued 5 puppies from a drainage',
+                            '2 days ago',
+                            Icons.pets,
+                          ),
+                          _buildActivityItem(
+                            'Conducted vaccination drive at local shelter',
+                            '1 week ago',
+                            Icons.medical_services,
+                          ),
+                          _buildActivityItem(
+                            'Successfully rehomed 3 senior dogs',
+                            '2 weeks ago',
+                            Icons.home,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Buttons
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                if (userPoints >= pointsRequired) {
+                                  _showDonationDialog(ngo);
+                                } else {
+                                  _showInsufficientPointsDialog();
+                                }
+                              },
+                              icon: Icon(Icons.volunteer_activism),
+                              label: Text('Donate Points'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                // Implement contact functionality
+                              },
+                              icon: Icon(Icons.message),
+                              label: Text('Contact'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Theme.of(context).primaryColor,
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                side: BorderSide(
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Extra space at bottom
+                    SizedBox(height: 30),
+                  ],
                 ),
-                
-                // Extra space at bottom
-                SizedBox(height: 30),
-              ],
-            ),
-          );
-        },
-      ),
+              );
+            },
+          ),
     );
   }
 
@@ -871,11 +902,7 @@ class _NgoPageState extends State<NgoPage> {
             color: Theme.of(context).primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: Theme.of(context).primaryColor,
-            size: 20,
-          ),
+          child: Icon(icon, color: Theme.of(context).primaryColor, size: 20),
         ),
         SizedBox(width: 12),
         Expanded(
@@ -883,10 +910,7 @@ class _NgoPageState extends State<NgoPage> {
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
               text,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade800,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade800),
             ),
           ),
         ),
@@ -894,7 +918,7 @@ class _NgoPageState extends State<NgoPage> {
     );
   }
 
-    Widget _buildActivityItem(String title, String time, IconData icon) {
+  Widget _buildActivityItem(String title, String time, IconData icon) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(12),
@@ -912,11 +936,7 @@ class _NgoPageState extends State<NgoPage> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.grey.shade300),
             ),
-            child: Icon(
-              icon,
-              color: Theme.of(context).primaryColor,
-              size: 20,
-            ),
+            child: Icon(icon, color: Theme.of(context).primaryColor, size: 20),
           ),
           SizedBox(width: 12),
           Expanded(
@@ -934,10 +954,7 @@ class _NgoPageState extends State<NgoPage> {
                 SizedBox(height: 4),
                 Text(
                   time,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],
             ),
@@ -948,92 +965,89 @@ class _NgoPageState extends State<NgoPage> {
   }
 
   void _showDonationDialog(NgoModel ngo) {
-  int pointsRequired = getRemainingPoints(ngo);
-  
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.9,
+    int pointsRequired = getRemainingPoints(ngo);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Donate to ${ngo.name}',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.9,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Donate to ${ngo.name}',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'This organization requires $pointsRequired points for a donation.',
-                  style: TextStyle(fontSize: 16),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  'You currently have $userPoints points available.',
-                  style: TextStyle(fontSize: 16),
-                ),
-                if (ngoDonations[ngo.id]! > 0) ...[
+                  SizedBox(height: 16),
+                  Text(
+                    'This organization requires $pointsRequired points for a donation.',
+                    style: TextStyle(fontSize: 16),
+                  ),
                   SizedBox(height: 12),
                   Text(
-                    'You have already donated ${ngoDonations[ngo.id]} points to this NGO.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.green,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    'You currently have $userPoints points available.',
+                    style: TextStyle(fontSize: 16),
                   ),
-                ],
-                SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text('Cancel'),
-                    ),
-                    SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Deduct points from user
-                        setState(() {
-                          userPoints -= pointsRequired;
-                          _saveUserPoints();
-                          
-                          // Record donation to this NGO
-                          _saveNgoDonation(ngo.id, pointsRequired);
-                        });
-                        
-                        Navigator.pop(context);
-                        _showDonationSuccessDialog(ngo);
-                      },
-                      child: Text('Donate $pointsRequired Points'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor: Colors.white,
+                  if (ngoDonations[ngo.id]! > 0) ...[
+                    SizedBox(height: 12),
+                    Text(
+                      'You have already donated ${ngoDonations[ngo.id]} points to this NGO.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.green,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   ],
-                ),
-              ],
+                  SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Cancel'),
+                      ),
+                      SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Deduct points from user
+                          setState(() {
+                            userPoints -= pointsRequired;
+                            _saveUserPoints();
+
+                            // Record donation to this NGO
+                            _saveNgoDonation(ngo.id, pointsRequired);
+                          });
+
+                          Navigator.pop(context);
+                          _showDonationSuccessDialog(ngo);
+                        },
+                        child: Text('Donate $pointsRequired Points'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   void _showDonationSuccessDialog(NgoModel ngo) {
     showDialog(
@@ -1142,6 +1156,190 @@ class _NgoPageState extends State<NgoPage> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildFeedbackForm() {
+    return Container(
+      margin: EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Share Your Feedback',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Help NGOs improve by sharing your experience',
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
+          SizedBox(height: 16),
+
+          if (!_isFeedbackSubmitted) ...[
+            Form(
+              key: _feedbackFormKey,
+              child: Column(
+                children: [
+                  DropdownButtonFormField<int>(
+                    value: _selectedNgoId,
+                    decoration: InputDecoration(
+                      labelText: 'Select NGO',
+                      border: OutlineInputBorder(),
+                    ),
+                    items:
+                        ngos.map((ngo) {
+                          return DropdownMenuItem<int>(
+                            value: ngo.id,
+                            child: Text(ngo.name),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedNgoId = value!;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select an NGO';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    controller: _feedbackController,
+                    maxLines: 4,
+                    decoration: InputDecoration(
+                      labelText: 'Your feedback',
+                      border: OutlineInputBorder(),
+                      hintText: 'Share your experience with this NGO...',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your feedback';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Rating',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: List.generate(5, (index) {
+                          return IconButton(
+                            icon: Icon(
+                              index < _selectedRating
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              color: Colors.amber,
+                              size: 32,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _selectedRating = index + 1;
+                              });
+                            },
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_feedbackFormKey.currentState!.validate()) {
+                          // Process feedback
+                          setState(() {
+                            _isFeedbackSubmitted = true;
+                          });
+
+                          // Show confirmation
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Thank you for your feedback!'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+
+                          // Reward points for feedback
+                          setState(() {
+                            userPoints += 30;
+                            _saveUserPoints();
+                          });
+                        }
+                      },
+                      child: Text('Submit Feedback'),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            Column(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green, size: 48),
+                SizedBox(height: 16),
+                Text(
+                  'Thank you for your feedback!',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Your opinion helps NGOs improve their services.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+                SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isFeedbackSubmitted = false;
+                      _feedbackController.clear();
+                      _selectedRating = 5;
+                    });
+                  },
+                  child: Text('Submit Another Feedback'),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

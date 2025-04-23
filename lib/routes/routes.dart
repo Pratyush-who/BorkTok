@@ -17,12 +17,9 @@ import '../screens/store_screen.dart';
 import '../screens/reports_screen.dart';
 
 class Routes {
-  // Authentication routes
   static const String authWrapper = '/';
   static const String login = '/login';
   static const String signup = '/signup';
-
-  // Existing routes
   static const String splash = '/splash';
   static const String main = '/main';
   static const String home = '/home';

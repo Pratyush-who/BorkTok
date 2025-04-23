@@ -24,6 +24,7 @@ void main() async {
     await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
   } catch (e) {
     print("Critical Error initializing app: $e");
+    
   }
   runApp(const MyApp());
 }
